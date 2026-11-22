@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0a10">
+<title>Scroller</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<!-- Welcome: pick what to watch -->
+<section id="welcome" class="view on">
+  <div class="welcome-inner">
+    <div class="brand"><span class="logo" aria-hidden="true"></span>Scroller</div>
+    <p class="tagline">Your own videos and photos, one swipe at a time. Or tune in to them like TV.</p>
+
+    <div class="choices">
+      <button class="big primary" id="pickFolder">
+        <span class="ico" data-icon="folder"></span>
+        <span><b>Choose a folder</b><small>Everything inside it, subfolders too</small></span>
+      </button>
+      <button class="big" id="pickFiles">
+        <span class="ico" data-icon="files"></span>
+        <span><b>Choose files</b><small>Pick a few, or use this on a phone</small></span>
+      </button>
+      <button class="big" id="trySamples">
+        <span class="ico" data-icon="play"></span>
+        <span><b>Try the samples</b><small>A few clips to see how it works</small></span>
+      </button>
+      <button class="big hidden" id="reopen">
+        <span class="ico" data-icon="history"></span>
+        <span><b id="reopenName">Open last folder</b><small>Pick up where you left off</small></span>
+      </button>
+    </div>
+
+    <div class="drop" id="drop">or drag a folder onto this window</div>
+
+    <div class="how">
+      <div><span class="step">1</span><b>Pick</b> a folder of videos or photos.</div>
+      <div><span class="step">2</span><b>Scroll</b> through them one at a time, full screen.</div>
+      <div><span class="step">3</span><b>Tune in</b> to Live TV: every subfolder becomes a channel.</div>
+    </div>
+    <p class="privacy"><span class="ico small" data-icon="lock"></span>Nothing is uploaded. Your files are read by this page on your own computer and never leave it.</p>
+    <p class="fine">Plays mp4, webm, m4v, mov and ogv video, and jpg, png, gif, webp and avif photos. <button class="link" id="helpLink">All the controls</button></p>
+  </div>
+  <input type="file" id="folderInput" webkitdirectory multiple hidden>
+  <input type="file" id="filesInput" multiple accept="video/*,image/*,.mov,.m4v,.webm,.mkv" hidden>
+</section>
+
+<!-- The feed -->
+<section id="feedView" class="view">
+  <div id="feed" tabindex="0"></div>
+  <header class="topbar" id="feedTop">
+    <button class="pill home" data-act="home" title="Back to the start (Esc)"><span class="ico" data-icon="home"></span></button>
+    <div class="source"><b class="sourceName"></b><span class="count"></span></div>
+    <div class="seg" role="group" aria-label="View">
+      <button class="on" data-act="feed">Feed</button><button data-act="tv">Live TV</button>
+    </div>
+    <button class="pill" id="sortRated" data-act="rated" title="Top rated first (R)"><span class="ico" data-icon="star"></span><span class="lbl">Top rated</span></button>
+    <button class="pill" id="sortShuffle" data-act="shuffle" title="Shuffle (S)"><span class="ico" data-icon="shuffle"></span><span class="lbl">Shuffle</span></button>
+    <button class="pill" data-act="help" title="Controls (?)"><span class="ico" data-icon="help"></span></button>
+  </header>
+  <nav class="rail" id="feedRail">
+    <button data-act="mute" title="Sound (M)"><span class="ico" data-icon="muted"></span><small>Sound</small></button>
+    <button data-act="fit" title="Fill the screen (F)"><span class="ico" data-icon="fit"></span><small>Fill</small></button>
+    <button data-act="auto" title="Auto-play the next one (A)"><span class="ico" data-icon="auto"></span><small>Auto</small></button>
+  </nav>
+</section>
+
+<!-- Live TV -->
+<section id="tvView" class="view">
+  <div id="screen"><video id="tv" playsinline></video><img id="tvPhoto" alt=""></div>
+  <canvas id="static"></canvas>
+  <div class="zone" id="zoneUp" title="Channel up"></div>
+  <div class="zone" id="zoneDown" title="Channel down"></div>
+  <div class="hud" id="chan"><b id="chanNum">--</b><span id="chanName"></span><span class="live">LIVE</span></div>
+  <div class="hud" id="now"><div class="title" id="title"></div><div class="sub" id="sub"></div><div class="next" id="next"></div></div>
+  <div id="prog"><i></i></div>
+  <header class="topbar hud-top" id="tvTop">
+    <button class="pill home" data-act="home" title="Back to the start (Esc)"><span class="ico" data-icon="home"></span></button>
+    <div class="source"><b class="sourceName"></b><span class="count"></span></div>
+    <div class="seg" role="group" aria-label="View">
+      <button data-act="feed">Feed</button><button class="on" data-act="tv">Live TV</button>
+    </div>
+    <button class="pill" data-act="guide" title="Guide (G)"><span class="ico" data-icon="guide"></span><span class="lbl">Guide</span></button>
+    <button class="pill" data-act="help" title="Controls (?)"><span class="ico" data-icon="help"></span></button>
+  </header>
+  <nav class="rail" id="tvRail">
+    <button data-act="chup" title="Channel up"><span class="ico" data-icon="up"></span><small>Ch +</small></button>
+    <button data-act="chdown" title="Channel down"><span class="ico" data-icon="down"></span><small>Ch -</small></button>
+    <button data-act="mute" title="Sound (M)"><span class="ico" data-icon="muted"></span><small>Sound</small></button>
+    <button data-act="fit" title="Fill the screen (F)"><span class="ico" data-icon="fit"></span><small>Fill</small></button>
+  </nav>
+  <div id="guide"><div class="guide-inner"><div class="guide-head"><h2>What's on</h2><button class="pill" data-act="guide">Close</button></div><div id="rows"></div></div></div>
+</section>
+
+<!-- Help -->
+<div id="help" class="overlay" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="sheet">
+    <div class="sheet-head"><h2 id="helpTitle">How to use Scroller</h2><button class="pill" data-act="help">Close</button></div>
+    <div class="cols">
+      <div>
+        <h3>The feed</h3>
+        <ul class="keys">
+          <li><span class="k">Scroll</span><span class="k">Swipe</span><span class="k">↑ ↓</span> next and previous</li>
+          <li><span class="k">Click</span><span class="k">Tap</span><span class="k">Space</span> pause and play</li>
+          <li><span class="k">← →</span> skip 5 seconds back or forward</li>
+          <li><span class="k">M</span> sound on or off. It starts muted so videos can autoplay.</li>
+          <li><span class="k">F</span> fill the screen, or show the whole frame</li>
+          <li><span class="k">A</span> auto: move on when a video ends. Off, each one loops.</li>
+          <li><span class="k">L</span><span class="k">♥</span> like</li>
+          <li><span class="k">1</span>–<span class="k">5</span> star rating. Hover the star to pick one with the mouse.</li>
+          <li><span class="k">R</span> top rated first <span class="k">S</span> shuffle</li>
+          <li>Click the thin bar at the bottom to jump to that point.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Live TV</h3>
+        <ul class="keys">
+          <li>Every subfolder is a channel, plus one called Everything.</li>
+          <li>Channels play on the clock, like real TV. Tune in and you land part-way through whatever is on.</li>
+          <li><span class="k">↑ ↓</span><span class="k">Swipe</span> change channel. Tapping the top or bottom of the screen does too.</li>
+          <li><span class="k">1</span>–<span class="k">9</span> jump to a channel</li>
+          <li><span class="k">G</span> the guide: what's on now and next on every channel</li>
+          <li><span class="k">M</span> sound <span class="k">F</span> fill</li>
+        </ul>
+        <h3>Good to know</h3>
+        <ul class="plain">
+          <li>Likes, stars and your settings are kept in this browser.</li>
+          <li>Some phone videos (HEVC .mov) won't play in every browser. The card says so instead of staying black.</li>
+          <li>Chrome and Edge can reopen your last folder in one click.</li>
+          <li><span class="k">Esc</span> goes back to the start. <span class="k">T</span> switches between the feed and Live TV.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="coach" class="overlay soft"><div class="coach-card">
+  <div class="coach-swipe" aria-hidden="true"></div>
+  <b>Swipe up, or scroll, for the next one.</b>
+  <span>Tap to pause. Sound starts off: press <span class="k">M</span> or the speaker. <span class="k">?</span> shows every control.</span>
+  <button class="big primary small-btn" data-act="coach">Got it</button>
+</div></div>
+
+<div id="toast"></div>
+<div id="loading" class="overlay soft"><div class="spinner"></div><div id="loadingText">Reading your folder...</div></div>
+
+<script src="samples/samples.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

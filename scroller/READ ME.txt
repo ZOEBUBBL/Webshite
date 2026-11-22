@@ -1,0 +1,42 @@
+SCROLLER
+Your own videos and photos, one swipe at a time. Or tune in to them like TV.
+
+
+START
+  1. Double-click "Open Scroller.html". It opens in your web browser.
+  2. Click "Try the samples" to see how it works, or "Choose a folder" to watch your own.
+  That's it. There is nothing to install.
+
+  Works best in Chrome or Edge (they can reopen your last folder in one click).
+  Firefox and Safari work too.
+
+
+YOUR FILES STAY YOURS
+  Scroller is a single web page that runs on your own computer. Your videos and photos are read straight from your
+  disk by your browser and are never uploaded anywhere. Likes, stars and settings are kept in your browser.
+
+
+THE FEED
+  One video or photo fills the screen. Scroll, swipe or press the arrow keys for the next one.
+  Click or tap to pause. Sound starts off so videos can play by themselves: press M or the speaker button.
+  Heart (L) to like, stars (1 to 5) to rate. "Top rated" and "Shuffle" are at the top.
+  Auto (A) moves on by itself when a video ends; photos stay up for a few seconds.
+
+LIVE TV
+  Every subfolder of the folder you chose becomes a channel, plus one called Everything.
+  Channels run on the clock like real TV: tune in and you land part-way through whatever is on.
+  Up and down (or swipe) to change channel. G shows the guide: what's on now and next everywhere.
+
+  Tip: make subfolders like "Holidays", "Funny", "Music videos" and each becomes its own channel.
+
+Press ? at any time for every control.
+
+
+WHAT PLAYS
+  Video: mp4 (best), webm, m4v, mov, ogv.  Photos: jpg, png, gif, webp, avif.
+  Some phone videos (HEVC .mov) won't play in every browser. Scroller tells you instead of showing a black screen.
+
+
+ON A PHONE
+  Put the Scroller folder online (any website host works, the files are all it needs) and open it on your phone,
+  then use "Choose files" to pick videos from your camera roll.
