@@ -314,7 +314,9 @@ body.lock{overflow:hidden}
           <form id="gbf">
             <input id="gbn" maxlength="30" placeholder="your name" required aria-label="Your name">
             <textarea id="gbm" maxlength="240" rows="3" placeholder="leave a message in the dark..." required aria-label="Message"></textarea>
+            <input id="gbw" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
             <button type="submit">Sign it</button>
+            <small id="gbnote" role="status" aria-live="polite"></small>
           </form>
           <div class="entries" id="entries"></div>
         </div>
@@ -327,6 +329,8 @@ body.lock{overflow:hidden}
 <script>
 {
 /* ================= EDIT YOUR STUFF HERE ================= */
+/* guestbook + visitor counter server (the guestbook/ folder, running on Railway). Paste its address here. */
+const GB_API = '';
 /* goals · set done:true to tick one off */
 const GOALS = [
   {text:'Stream on Twitch and YouTube at the same time', done:false},
@@ -688,22 +692,39 @@ const route = () => {
 };
 addEventListener('hashchange', route); route();
 
-/* visitor counter (this browser only; swap for a real one later) */
-let n = 666;
-try { n = +(localStorage.getItem('zb_hits') || 665) + 1; localStorage.setItem('zb_hits', n); } catch(e) {}
-$('counter').innerHTML = String(n).padStart(6,'0').split('').map(d => `<span>${d}</span>`).join('');
+/* visitor counter + guestbook, shared by every visitor through GB_API (the guestbook/ server).
+   If GB_API is blank or unreachable they fall back to this browser only, so the page never breaks. */
+const api = (p, o) => fetch(GB_API.replace(/\/+$/, '') + p, o).then(async r => {
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw Object.assign(new Error(j.error || 'Something went wrong.'), {soft:r.status < 500}); return j; });
+const drawHits = n => $('counter').innerHTML = String(n).padStart(6,'0').split('').map(d => `<span>${d}</span>`).join('');
+const localHits = () => { let n = 666; try { n = +(localStorage.getItem('zb_hits') || 665) + 1; localStorage.setItem('zb_hits', n); } catch(e) {} return n; };
+let counted = false; try { counted = sessionStorage.getItem('zb_counted') === '1'; } catch(e) {}
+drawHits(0);
+(GB_API ? api('/api/hits' + (counted ? '' : '?bump=1')).then(j => { try { sessionStorage.setItem('zb_counted','1'); } catch(e) {} return j.hits; })
+        : Promise.reject()).then(drawHits, () => drawHits(localHits()));
 
-/* guestbook (saved in the visitor's own browser only) */
-let entries = [{n:'zo3bubbl3', m:'you found it. sign below.', d:'the beginning'}];
-try { entries = JSON.parse(localStorage.getItem('zb_gb')) || entries; } catch(e) {}
+let entries = [{n:'zo3bubbl3', m:'you found it. sign below.', t:0}], shared = false;
+const when = e => e.t ? new Date(e.t).toLocaleDateString() : (e.d || 'the beginning');
 const drawGb = () => $('entries').innerHTML = entries.slice().reverse().map(e =>
-  `<div class="entry"><b>${esc(e.n)}</b> <small>· ${esc(e.d)}</small><br>${esc(e.m)}</div>`).join('');
-drawGb();
+  `<div class="entry"><b>${esc(e.n)}</b> <small>· ${esc(when(e))}</small><br>${esc(e.m)}</div>`).join('');
+const gbNote = (t, bad) => { const el = $('gbnote'); el.textContent = t; el.style.color = bad ? 'var(--red)' : 'var(--dim)'; };
+const loadLocal = () => { try { entries = JSON.parse(localStorage.getItem('zb_gb')) || entries; } catch(e) {} drawGb(); };
+if (GB_API) { gbNote('Opening the guestbook...'); api('/api/guestbook').then(j => { entries = j.entries; shared = true; gbNote(''); drawGb(); },
+  () => { gbNote('The guestbook is asleep right now, so this note will only be saved on your device.', true); loadLocal(); }); }
+else loadLocal();
 $('gbf').addEventListener('submit', ev => {
   ev.preventDefault();
-  entries.push({n:$('gbn').value.trim(), m:$('gbm').value.trim(), d:new Date().toLocaleDateString()});
-  try { localStorage.setItem('zb_gb', JSON.stringify(entries.slice(-50))); } catch(e) {}
-  $('gbn').value = ''; $('gbm').value = ''; drawGb();
+  const name = $('gbn').value.trim(), message = $('gbm').value.trim(), btn = $('gbf').querySelector('button');
+  if (!shared) {
+    entries.push({n:name, m:message, t:Date.now()});
+    try { localStorage.setItem('zb_gb', JSON.stringify(entries.slice(-50))); } catch(e) {}
+    $('gbn').value = ''; $('gbm').value = ''; return drawGb();
+  }
+  btn.disabled = true; gbNote('Signing...');
+  api('/api/guestbook', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name, message, website:$('gbw').value})})
+    .then(j => { entries = j.entries; drawGb(); $('gbn').value = ''; $('gbm').value = ''; gbNote('Thanks for signing!'); },
+          e => gbNote(e.soft ? e.message : 'Could not reach the guestbook. Try again in a bit.', true))
+    .finally(() => { btn.disabled = false; });
 });
 
 
