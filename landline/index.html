@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Landline · zo3bubbl3</title>
+<style>
+  :root{box-sizing:border-box;
+    --bg:#0e0b08;--panel:#16110c;--panel-2:#1e1711;--edge:#3a2c1f;
+    --ink:#f1e6d6;--ink-dim:#a8957d;--glow:#ffb347;--line:#7dffb0;--rec:#ff6a45;
+    --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;}
+  *{box-sizing:inherit}html,body{height:100%}
+  body{margin:0;background:radial-gradient(1100px 640px at 72% -12%, #3a2410 0%, transparent 55%),var(--bg);
+    color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .app{display:grid;grid-template-columns:330px 1fr;gap:1px;background:var(--edge);min-height:100%}
+  @media (max-width:900px){.app{grid-template-columns:1fr}}
+  .rail{background:var(--panel);padding:20px 18px 40px;padding-top:calc(20px + env(safe-area-inset-top,0px));
+    display:flex;flex-direction:column;gap:18px;max-height:100vh;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand h1{font-size:19px;margin:0;font-weight:650;letter-spacing:-.01em}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--glow);box-shadow:0 0 12px var(--glow)}
+  .sub{color:var(--ink-dim);font-size:12px;margin:-10px 0 0;line-height:1.5}
+  .group{background:var(--panel-2);border:1px solid var(--edge);border-radius:12px;padding:14px}
+  .group h2{margin:0 0 12px;font-size:12.5px;font-weight:600;color:var(--ink-dim)}
+  .row{display:flex;gap:8px}.row+.row{margin-top:10px}
+  button{font-family:inherit;font-size:13.5px;color:var(--ink);background:#2a2017;border:1px solid var(--edge);
+    border-radius:9px;padding:9px 12px;cursor:pointer;flex:1;transition:background .12s,border-color .12s}
+  button:hover{background:#34281c;border-color:#5a4430}button:active{transform:translateY(1px)}
+  button.on{border-color:var(--glow);color:#fff4e3;background:#46301a}
+  button.primary{background:#46301a;border-color:#a0703a}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.rec.live{background:#3a1409;border-color:var(--rec);color:#ffd9c7}
+  .readout .recon{color:var(--rec)}
+  #showStat{font-weight:500;color:var(--ink)}#showStat.ok{color:var(--line)}
+  select,input[type=text]{width:100%;font-family:inherit;font-size:13px;color:var(--ink);background:#2a2017;border:1px solid var(--edge);border-radius:9px;padding:8px 10px}
+  label.sel{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--ink-dim)}
+  label.sel+label.sel{margin-top:10px}
+  .field{display:flex;flex-direction:column;gap:7px}
+  .field+.field{margin-top:14px}
+  .field .head{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px}
+  .field .head b{font-weight:500}.field .head span{font-family:var(--mono);font-size:11.5px;color:var(--glow)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:var(--edge);border-radius:3px;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--glow);cursor:pointer;box-shadow:0 0 8px var(--glow)}
+  input[type=range]::-moz-range-thumb{width:15px;height:15px;border:none;border-radius:50%;background:var(--glow);cursor:pointer;box-shadow:0 0 8px var(--glow)}
+  .toggles{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toggles button{font-size:12.5px;padding:8px 6px}
+  .hint{font-size:11.5px;color:var(--ink-dim);line-height:1.5;margin:8px 0 0}
+  .hint.err{display:none;color:#ffb3a0;background:#3a1a12;border:1px solid #7a3422;border-radius:8px;padding:8px 10px;margin-top:10px}
+  .stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:20px;padding:24px;min-height:60vh}
+  .handset{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:24px;width:min(860px,100%)}
+  .campanel{flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:10px}
+  #camView{width:100%;aspect-ratio:auto;background:#070503}
+  .sigs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+  .sig{position:relative;overflow:hidden;background:#18120d;border:1px solid var(--edge);border-radius:10px;padding:8px 10px;font-size:12px;
+    display:flex;flex-direction:column;gap:3px;transition:border-color .15s,background .15s}
+  .sig b{font-weight:600;font-size:12.5px}.sig span{color:var(--ink-dim)}
+  .sig::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:calc(var(--p,0)*100%);background:var(--glow)}
+  .sig.fire{border-color:var(--line);background:#16261b}
+  .lightnow{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:12.5px}
+  .lightnow .swatch{width:44px;height:28px;border-radius:7px;border:1px solid var(--edge);background:#000;transition:background .15s}
+  .lightnow span{color:var(--ink-dim)}
+  .colors{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:12px}
+  .colors label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--ink-dim)}
+  input[type=color]{width:44px;height:26px;padding:1px;border:1px solid var(--edge);border-radius:6px;background:#2a2017;cursor:pointer}
+  .camstat{font-family:var(--mono);font-size:11.5px;color:var(--ink-dim)}.camstat b{color:var(--line);font-weight:400}
+  #hook{flex:none;width:200px;height:200px;border-radius:50%;font-size:17px;font-weight:650;letter-spacing:.02em;
+    background:radial-gradient(circle at 35% 30%,#4a3420,#1c140d);border:2px solid #5a4430;box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 0 30px rgba(0,0,0,.6)}
+  #hook.live{border-color:var(--line);box-shadow:0 0 40px rgba(125,255,176,.25),0 20px 60px rgba(0,0,0,.6),inset 0 0 30px rgba(0,0,0,.6);color:#eafff1}
+  #hook.ring{border-color:var(--glow);animation:shake .12s infinite}
+  @keyframes shake{25%{transform:rotate(-2deg)}75%{transform:rotate(2deg)}}
+  #hook small{display:block;font-weight:400;font-size:11.5px;color:var(--ink-dim);margin-top:6px}
+  canvas{width:min(860px,100%);aspect-ratio:860/220;border-radius:12px;background:#070503;border:1px solid var(--edge)}
+  .meters{display:flex;gap:18px;width:min(860px,100%);font-family:var(--mono);font-size:11px;color:var(--ink-dim)}
+  .meter{flex:1;display:flex;align-items:center;gap:8px}
+  .meter .bar{flex:1;height:8px;background:#211910;border-radius:4px;overflow:hidden}
+  .meter .fill{height:100%;width:0;background:linear-gradient(90deg,#7dffb0,#ffb347 70%,#ff6a45)}
+  .readout{font-family:var(--mono);font-size:11.5px;color:var(--ink-dim);display:flex;gap:16px;background:rgba(14,11,8,.55);padding:6px 12px;border-radius:8px}
+  .readout b{color:var(--glow);font-weight:400}
+  /* switchboard */
+  .board{width:min(860px,100%);background:var(--panel-2);border:1px solid var(--edge);border-radius:12px;padding:14px}
+  .board-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
+  .board-head h2{margin:0;font-size:13px;font-weight:650;flex:1 1 auto}
+  .board-head button,.board-head label.addbtn{flex:none;font-size:12.5px;padding:8px 12px}
+  label.addbtn{display:inline-block;background:#46301a;border:1px solid #a0703a;border-radius:9px;cursor:pointer;color:var(--ink)}
+  label.addbtn input{display:none}
+  .board-vol{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-dim);min-width:180px}
+  .calls{display:flex;flex-direction:column;gap:8px}
+  .call{display:grid;grid-template-columns:12px minmax(120px,1.4fr) minmax(110px,1fr) minmax(120px,1.2fr) auto;gap:10px;align-items:center;
+    background:#18120d;border:1px solid var(--edge);border-radius:10px;padding:8px 10px}
+  @media (max-width:760px){.call{grid-template-columns:12px 1fr;}.call>*:nth-child(n+3){grid-column:1/-1}}
+  .call.onair{border-color:var(--line);box-shadow:0 0 18px rgba(125,255,176,.12)}
+  .call.ringing{border-color:var(--glow)}
+  .call.done{opacity:.55}
+  .call .lamp{width:10px;height:10px;border-radius:50%;background:#4a3a2a}
+  .call.ringing .lamp{background:var(--glow);box-shadow:0 0 8px var(--glow);animation:blink .5s steps(2) infinite}
+  .call.onair .lamp{background:var(--line);box-shadow:0 0 8px var(--line)}
+  .call.hold .lamp{background:#ff9d4d}
+  @keyframes blink{50%{opacity:.25}}
+  .call input[type=text],.call select{padding:6px 8px;font-size:12.5px}
+  .call .time{font-family:var(--mono);font-size:11px;color:var(--ink-dim);display:flex;flex-direction:column;gap:4px}
+  .call .prog{height:4px;background:#2a2017;border-radius:2px;overflow:hidden}.call .prog i{display:block;height:100%;width:0;background:var(--line)}
+  .call .acts{display:flex;gap:6px}
+  .call .acts button{flex:none;font-size:12px;padding:6px 10px}
+  .call .acts button.x{padding:6px 9px;color:var(--ink-dim)}
+  .empty{font-size:12.5px;color:var(--ink-dim);padding:14px;text-align:center;border:1px dashed var(--edge);border-radius:10px}
+  .kbd{font-family:var(--mono);font-size:11px;background:#2a2017;border:1px solid var(--edge);border-radius:4px;padding:0 5px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="dot"></span><h1>Landline Voice</h1></div>
+    <a href="../#landline" style="color:var(--ink-dim);font-size:12px;margin-top:-10px">&larr; back to zo3bubbl3</a>
+    <p class="sub">Puts you and your callers on an old telephone line. Load callers' voice clips on the switchboard, ring them in, and answer.</p>
+
+    <div class="group">
+      <h2>Audio</h2>
+      <div class="row"><button id="startBtn" class="primary">Start mic</button></div>
+      <p class="hint err" id="micErr"></p>
+      <label class="sel" style="margin-top:12px">Microphone<select id="micSel"><option value="">System default mic</option></select></label>
+      <label class="sel">Send output to<select id="outSel"><option value="">Default output</option></select></label>
+      <div class="row" id="pickOutRow" style="display:none"><button id="pickOut">Choose output device…</button></div>
+      <p class="hint" id="outHint">For OBS, send this to a device you don't listen to, or to a virtual cable like "CABLE Input". OBS's Application Audio Capture still picks it up either way.</p>
+    </div>
+
+    <div class="group">
+      <h2>Hand signals</h2>
+      <div class="row"><button id="camBtn">Start camera</button></div>
+      <label class="sel" style="margin-top:12px">Ring the phone with<select id="ringSig">
+        <option value="cheek">Touch your cheek</option>
+        <option value="peace">Peace sign</option></select></label>
+      <div class="field" style="margin-top:14px"><div class="head"><b>Hold a sign for</b><span id="sigHoldVal">400 ms</span></div><input type="range" id="sigHold" min="150" max="1200" step="50" value="400"></div>
+      <p class="hint">With the camera on, the voice filter stays off until you pick up. Touch your cheek (or flash a peace sign) to ring the next caller. Make the phone hand, thumb and pinky out, to pick up and get on the line. Make a finger gun, thumb and index out, to put the caller through and start their clip. Make the phone hand again to hang up. Each sign has to be held briefly and let go before it can fire again.</p>
+    </div>
+
+    <div class="group">
+      <h2>Record</h2>
+      <div class="row"><button id="recBtn" class="rec">Record</button></div>
+      <div class="toggles" style="margin-top:10px">
+        <button id="tRecCam" class="on">Camera in recording</button>
+        <button id="tRecMirror" class="on">Mirror video</button>
+      </div>
+      <p class="hint err" id="recErr"></p>
+      <p class="hint">Saves a .webm of what this page sends out: your line, the ring, callers and dial tone. With the camera on it adds your camera picture, clean, with none of the hand-tracking marks. With the camera off, or Camera in recording off, it saves sound only. The file downloads when you press Stop.</p>
+    </div>
+
+    <div class="group">
+      <h2>Room light</h2>
+      <div class="row"><button id="lightBtn">Open light window</button></div>
+      <p class="hint err" id="lightErr"></p>
+      <div class="lightnow"><span class="swatch" id="lightSwatch"></span><b id="lightName">Idle</b><span id="lightMood"></span></div>
+      <div class="field" style="margin-top:14px"><div class="head"><b>Brightness</b><span id="lightBrightVal">100%</span></div><input type="range" id="lightBright" min="5" max="100" value="100"></div>
+      <div class="colors">
+        <label>Idle<input type="color" id="lcIdle" value="#2a1606"></label>
+        <label>Ringing<input type="color" id="lcRing" value="#ffb347"></label>
+        <label>On the line<input type="color" id="lcLine" value="#1f7a4a"></label>
+        <label>Caller talking<input type="color" id="lcTalk" value="#3a6fd8"></label>
+        <label>Kiss mood<input type="color" id="lcKiss" value="#8b0000"></label>
+      </div>
+      <div class="row" style="margin-top:12px"><button id="kissBtn">Kiss mood: off</button></div>
+      <p class="hint">Opens a plain window of solid colour. Drag it onto your second monitor and double-click it to go full screen (Esc to leave). It follows the call: it swells with each ring and changes colour when you pick up and when the caller talks. Blow a kiss at the camera (fingertips to your lips, then away) to switch to dark red. Blow another to switch back. A ring still shows through the kiss mood.</p>
+    </div>
+
+    <div class="group">
+      <h2>Ghost-show overlays</h2>
+      <p class="hint" style="margin:0">Overlay link: <b id="showStat">alert server not running</b></p>
+      <p class="hint">When the overlay set's alert server is running, this page tells the ghost-show overlays in OBS what the phone is doing. The caller lower-third shows who's ringing and on the line, the frames glow when it rings, the EMF meter jumps, and kiss mood turns the fog red. It connects by itself.</p>
+    </div>
+
+    <div class="group">
+      <h2>Haunted ring</h2>
+      <div class="row"><button id="ringBtn" disabled>Ring the phone</button></div>
+      <div class="row"><button id="ringStyle">Pattern: long ring</button></div>
+      <div class="field" style="margin-top:14px"><div class="head"><b>Haunt</b><span id="hauntVal"></span></div><input type="range" id="haunt" min="0" max="100"></div>
+      <div class="field"><div class="head"><b>Ring volume</b><span id="ringVolVal"></span></div><input type="range" id="ringVol" min="0" max="100"></div>
+      <p class="hint">Picking up (<span class="kbd">P</span> or the big button) answers and cuts the ring off instantly. Higher Haunt makes the bells detune, sag, stutter and echo.</p>
+    </div>
+
+    <div class="group">
+      <h2>Calls</h2>
+      <div class="toggles">
+        <button id="tPickFirst" class="on">Pick up first</button>
+        <button id="tDial" class="on">Dial tone</button>
+      </div>
+      <div class="field" style="margin-top:14px"><div class="head"><b>Dial tone length</b><span id="dialLenVal"></span></div><input type="range" id="dialLen" min="0.5" max="4" step="0.1"></div>
+      <p class="hint">With Pick up first on, answering stops the ring and puts you on the line while the caller waits. Press <span class="kbd">P</span> again to put them through. Dial tone plays down your line after a caller hangs up or you hang up on them.</p>
+    </div>
+
+    <div class="group">
+      <h2>Your line preset</h2>
+      <div class="toggles" id="presets"></div>
+    </div>
+
+    <div class="group">
+      <h2>Your phone line</h2>
+      <div class="field"><div class="head"><b>Low cut</b><span id="hpVal"></span></div><input type="range" id="hp" min="100" max="800" step="10"></div>
+      <div class="field"><div class="head"><b>High cut</b><span id="lpVal"></span></div><input type="range" id="lp" min="1500" max="6000" step="50"></div>
+      <div class="field"><div class="head"><b>Nasal honk</b><span id="nasalVal"></span></div><input type="range" id="nasal" min="0" max="12" step="0.5"></div>
+      <div class="field"><div class="head"><b>Crunch</b><span id="driveVal"></span></div><input type="range" id="drive" min="0" max="100"></div>
+      <div class="field"><div class="head"><b>Digital grit (bits)</b><span id="bitsVal"></span></div><input type="range" id="bits" min="4" max="16" step="1"></div>
+      <div class="field"><div class="head"><b>Line sample rate</b><span id="rateVal"></span></div><input type="range" id="rate" min="3000" max="16000" step="100"></div>
+    </div>
+
+    <div class="group">
+      <h2>Line noise</h2>
+      <div class="field"><div class="head"><b>Hiss</b><span id="hissVal"></span></div><input type="range" id="hiss" min="0" max="100"></div>
+      <div class="field"><div class="head"><b>Hum</b><span id="humVal"></span></div><input type="range" id="hum" min="0" max="100"></div>
+      <div class="field"><div class="head"><b>Crackle</b><span id="crackleVal"></span></div><input type="range" id="crackle" min="0" max="100"></div>
+      <div class="field"><div class="head"><b>Wobble &amp; dropouts</b><span id="wobbleVal"></span></div><input type="range" id="wobble" min="0" max="100"></div>
+      <div class="row" style="margin-top:14px"><button id="humHz">Hum: 60 Hz</button></div>
+    </div>
+
+    <div class="group">
+      <h2>Levels</h2>
+      <div class="field"><div class="head"><b>Mic gain</b><span id="inGainVal"></span></div><input type="range" id="inGain" min="0" max="300"></div>
+      <div class="field"><div class="head"><b>Output volume</b><span id="outGainVal"></span></div><input type="range" id="outGain" min="0" max="200"></div>
+      <div class="toggles" style="margin-top:14px">
+        <button id="tClick" class="on">Pickup click</button>
+        <button id="tNS" class="on">Mic noise filter</button>
+      </div>
+      <p class="hint">Keys: <span class="kbd">P</span> pick up, put the caller through, hang up, <span class="kbd">N</span> ring the next caller, <span class="kbd">H</span> hang up (or decline a ringing call), <span class="kbd">R</span> ring with no caller.</p>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="handset">
+      <button id="hook" disabled>ON HOOK<small>start the mic first</small></button>
+      <div class="campanel">
+        <canvas id="camView" width="640" height="360"></canvas>
+        <div class="sigs">
+          <div class="sig" id="sgRing"><b>Ring</b><span id="sgRingHow">touch your cheek</span></div>
+          <div class="sig" id="sgPhone"><b>Pick up / hang up</b><span>phone hand 🤙</span></div>
+          <div class="sig" id="sgGun"><b>Put caller through</b><span>finger gun</span></div>
+          <div class="sig" id="sgKiss"><b>Kiss mood light</b><span>blow a kiss 💋</span></div>
+        </div>
+        <div class="camstat">sees <b id="sgSee">—</b> · last <b id="sgLast">—</b></div>
+      </div>
+    </div>
+
+    <section class="board">
+      <div class="board-head">
+        <h2>Switchboard</h2>
+        <div class="board-vol">Caller volume<input type="range" id="callVol" min="0" max="200" value="100"></div>
+        <button id="nextBtn" disabled>Ring next caller</button>
+        <label class="addbtn">Add caller clips<input type="file" id="callFiles" accept="audio/*,video/*" multiple></label>
+      </div>
+      <div class="calls" id="calls"><div class="empty">No callers yet. Add voice clips and each one becomes a caller you can ring in.</div></div>
+    </section>
+
+    <canvas id="scope" width="1720" height="440"></canvas>
+    <div class="meters">
+      <div class="meter">MIC<div class="bar"><div class="fill" id="mIn"></div></div></div>
+      <div class="meter">LINE<div class="bar"><div class="fill" id="mOut"></div></div></div>
+    </div>
+    <div class="readout">
+      <span>status <b id="rStat">idle</b></span>
+      <span>latency <b id="rLat">—</b></span>
+      <span>output <b id="rOut">default</b></span>
+      <span>rec <b id="rRec">off</b></span>
+    </div>
+  </main>
+</div>
+<audio id="outEl" hidden></audio>
+<video id="cam" playsinline muted hidden></video>
+
+<script>
+const $=id=>document.getElementById(id);
+
+const PRESETS={
+  'Landline':   {hp:300,lp:3400,nasal:5,drive:35,bits:8,rate:8000,hiss:15,hum:6,crackle:10,wobble:10},
+  'Rotary 1950s':{hp:450,lp:2800,nasal:7,drive:50,bits:7,rate:6000,hiss:30,hum:12,crackle:35,wobble:25},
+  'Payphone':   {hp:350,lp:3000,nasal:8,drive:70,bits:6,rate:8000,hiss:20,hum:20,crackle:15,wobble:15},
+  'Crisp line': {hp:250,lp:3600,nasal:3,drive:15,bits:10,rate:11000,hiss:5,hum:0,crackle:0,wobble:0},
+};
+const S={...PRESETS['Landline'],inGain:100,outGain:100,haunt:60,ringVol:70,ringStyle:'long',pickFirst:true,dialTone:true,dialLen:1.5,humHz:60,click:true,ns:true,live:false,running:false,callVol:1};
+const FMT={hp:v=>v+' Hz',lp:v=>(v/1000).toFixed(2)+' kHz',nasal:v=>'+'+v+' dB',drive:v=>v+'%',bits:v=>v+' bit',
+  rate:v=>(v/1000).toFixed(1)+' kHz',hiss:v=>v+'%',hum:v=>v+'%',crackle:v=>v+'%',wobble:v=>v+'%',inGain:v=>v+'%',outGain:v=>v+'%',haunt:v=>v+'%',ringVol:v=>v+'%',dialLen:v=>(+v).toFixed(1)+' s'};
+
+/* ---------- audio graph ---------- */
+let ac=null,micStream=null,src=null,N={},crushOK=false;
+// sample-and-hold + mu-law quantiser: the "digital phone network" crunch
+const CRUSH=`class Crush extends AudioWorkletProcessor{
+  static get parameterDescriptors(){return[{name:'rate',defaultValue:8000,automationRate:'k-rate'},{name:'bits',defaultValue:8,automationRate:'k-rate'}];}
+  constructor(){super();this.ph=1;this.hold=0;}
+  process(ins,outs,p){
+    const i=ins[0]&&ins[0][0],o=outs[0];if(!i)return true;
+    const step=p.rate[0]/sampleRate,q=Math.pow(2,p.bits[0]-1),mu=255,lmu=Math.log1p(mu);
+    for(let n=0;n<i.length;n++){
+      this.ph+=step;
+      if(this.ph>=1){this.ph-=1;
+        const x=Math.max(-1,Math.min(1,i[n]));
+        let y=Math.sign(x)*Math.log1p(mu*Math.abs(x))/lmu;y=Math.round(y*q)/q;
+        this.hold=Math.sign(y)*(Math.pow(1+mu,Math.abs(y))-1)/mu;}
+      for(const ch of o)ch[n]=this.hold;
+    }
+    return true;
+  }}
+registerProcessor('crush',Crush);`;
+
+function driveCurve(d){
+  const k=d/100*40,n=2048,c=new Float32Array(n);
+  for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=(1+k)*x/(1+k*Math.abs(x));}
+  return c;
+}
+function noiseBuffer(sec,fn){
+  const b=ac.createBuffer(1,ac.sampleRate*sec,ac.sampleRate),d=b.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=fn(i);return b;
+}
+function crackleBuffer(amount){
+  // sparse pops and ticks, denser as the slider goes up
+  const dens=amount/100,b=ac.createBuffer(1,ac.sampleRate*4,ac.sampleRate),d=b.getChannelData(0);
+  const pops=Math.round(4*(2+dens*60));
+  for(let p=0;p<pops;p++){
+    const at=Math.random()*d.length|0,len=20+Math.random()*400|0,amp=(0.2+Math.random()*0.8)*(Math.random()<0.1?1:0.4);
+    for(let j=0;j<len&&at+j<d.length;j++)d[at+j]+=(Math.random()*2-1)*amp*Math.exp(-j/(len*0.25));
+  }
+  return b;
+}
+function loop(buf,dest){const s=ac.createBufferSource();s.buffer=buf;s.loop=true;s.connect(dest);s.start();return s;}
+const bq=(type,f,q=0.707,g=0)=>{const b=ac.createBiquadFilter();b.type=type;b.frequency.value=f;b.Q.value=q;b.gain.value=g;return b;};
+
+// one telephone line: band-limit, digital crunch, nasal peak, distortion, compression, and its own line noise
+function makeLine(){
+  const L={};
+  L.in=ac.createGain();L.out=ac.createGain();
+  // two or three stacked filters per side for a steep phone-band cut
+  L.hp=[bq('highpass',300),bq('highpass',300),bq('highpass',300)];
+  L.lp=[bq('lowpass',3400),bq('lowpass',3400),bq('lowpass',3400)];
+  L.nasal=bq('peaking',1700,1.2,0);
+  L.shaper=ac.createWaveShaper();L.shaper.oversample='2x';
+  L.post=ac.createGain();
+  L.comp=ac.createDynamicsCompressor();
+  L.comp.threshold.value=-26;L.comp.ratio.value=6;L.comp.knee.value=6;L.comp.attack.value=0.003;L.comp.release.value=0.15;
+  L.makeup=ac.createGain();L.makeup.gain.value=1.5;
+  L.wobble=ac.createGain();
+  L.crush=crushOK?new AudioWorkletNode(ac,'crush'):ac.createGain();
+  L.in.connect(L.hp[0]);L.hp[0].connect(L.hp[1]);L.hp[1].connect(L.crush);L.crush.connect(L.lp[0]);L.lp[0].connect(L.lp[1]);L.lp[1].connect(L.nasal);
+  L.nasal.connect(L.shaper);L.shaper.connect(L.post);L.post.connect(L.comp);L.comp.connect(L.makeup);L.makeup.connect(L.wobble);
+  L.wobble.connect(L.lp[2]);L.lp[2].connect(L.hp[2]);L.hp[2].connect(L.out);
+  // line noise joins after the voice processing
+  L.hiss=ac.createGain();const hbp=bq('bandpass',2200,0.6);L.hiss.connect(hbp);hbp.connect(L.lp[2]);
+  loop(noiseBuffer(3,()=>Math.random()*2-1),L.hiss);
+  L.hum=ac.createGain();L.hum.connect(L.out);   // hum skips the low cut, it lives below the voice band
+  L.humOsc=[1,2,3,5].map((h,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=S.humHz*h;g.gain.value=[1,0.5,0.35,0.15][i];o.connect(g);g.connect(L.hum);o.start();return{o,h};});
+  L.crackle=ac.createGain();L.crackleHp=bq('highpass',900);L.crackleHp.connect(L.crackle);L.crackle.connect(L.lp[2]);
+  L.lfo=ac.createOscillator();L.lfo.frequency.value=4.3;L.lfoDepth=ac.createGain();L.lfo.connect(L.lfoDepth);L.lfoDepth.connect(L.wobble.gain);L.lfo.start();
+  return L;
+}
+function applyLine(L,p){
+  if(!L)return;const t=ac.currentTime,sm=(a,v)=>a.setTargetAtTime(v,t,0.03);
+  for(const n of L.hp)sm(n.frequency,p.hp);
+  for(const n of L.lp)sm(n.frequency,p.lp);
+  sm(L.nasal.gain,p.nasal);
+  L.shaper.curve=driveCurve(p.drive);sm(L.post.gain,1/(1+p.drive/100*1.2));
+  if(L.crush.parameters){L.crush.parameters.get('rate').value=p.rate;L.crush.parameters.get('bits').value=p.bits;}
+  sm(L.hiss.gain,(p.hiss/100)**2*0.12);
+  sm(L.hum.gain,(p.hum/100)**2*0.06);
+  sm(L.crackle.gain,(p.crackle/100)*0.5);
+  sm(L.lfoDepth.gain,p.wobble/100*0.3);
+  for(const {o,h} of L.humOsc)sm(o.frequency,S.humHz*h);
+  if(L.crackleAmt!==p.crackle){L.crackleAmt=p.crackle;L.crackleSrc?.stop();L.crackleSrc=loop(crackleBuffer(p.crackle),L.crackleHp);}
+  L.params=p;
+}
+
+async function build(){
+  ac=new (window.AudioContext||window.webkitAudioContext)({latencyHint:'interactive'});
+  try{
+    const url=URL.createObjectURL(new Blob([CRUSH],{type:'application/javascript'}));
+    await ac.audioWorklet.addModule(url);crushOK=true;
+  }catch(e){console.warn('crusher unavailable',e);crushOK=false;}
+  N.inGain=ac.createGain();N.dry=ac.createGain();N.wet=ac.createGain();N.mix=ac.createGain();N.out=ac.createGain();
+  // brick-wall safety limiter so nothing clips on its way into OBS
+  N.limit=ac.createDynamicsCompressor();N.limit.threshold.value=-4;N.limit.ratio.value=20;N.limit.knee.value=0;N.limit.attack.value=0.001;N.limit.release.value=0.08;
+  // your line
+  N.me=makeLine();
+  N.inGain.connect(N.dry);N.dry.connect(N.mix);
+  N.inGain.connect(N.me.in);N.me.out.connect(N.wet);N.wet.connect(N.mix);
+  // the callers' line: silent (gate closed) unless a call is live
+  N.them=makeLine();N.callBus=ac.createGain();N.callGate=ac.createGain();N.callGate.gain.value=0;
+  N.callBus.connect(N.them.in);N.them.out.connect(N.callGate);N.callGate.connect(N.mix);
+  N.mix.connect(N.out);N.out.connect(N.limit);
+  N.anIn=ac.createAnalyser();N.anIn.fftSize=1024;N.inGain.connect(N.anIn);
+  N.anOut=ac.createAnalyser();N.anOut.fftSize=2048;N.anOut.smoothingTimeConstant=0.6;N.limit.connect(N.anOut);
+  N.wet.gain.value=0;N.dry.gain.value=1;
+  routeOutput('');
+  applyAll();
+}
+function applyAll(){
+  if(!ac)return;const t=ac.currentTime;
+  applyLine(N.me,S);
+  if(active&&active.preset==='same')applyLine(N.them,S);
+  N.inGain.gain.setTargetAtTime(S.inGain/100,t,0.03);N.out.gain.setTargetAtTime(S.outGain/100,t,0.03);
+  N.callBus.gain.setTargetAtTime(S.callVol,t,0.03);
+}
+
+/* ---------- output routing ---------- */
+// Chrome/Edge can point the whole audio context at a device. Firefox can't, but it can point an <audio>
+// element at one, so there the mix is piped through a hidden element when a specific device is chosen.
+const CTX_SINK='setSinkId' in AudioContext.prototype,EL_SINK='setSinkId' in HTMLMediaElement.prototype;
+async function routeOutput(id){
+  if(CTX_SINK){if(!N.limit.__toDest){N.limit.connect(ac.destination);N.limit.__toDest=true;}await ac.setSinkId(id);return;}
+  const el=$('outEl');
+  if(id&&EL_SINK){
+    if(!N.sink){N.sink=ac.createMediaStreamDestination();N.limit.connect(N.sink);}
+    if(N.limit.__toDest){N.limit.disconnect(ac.destination);N.limit.__toDest=false;}
+    el.srcObject=N.sink.stream;await el.setSinkId(id);await el.play();
+  }else{
+    if(!N.limit.__toDest){N.limit.connect(ac.destination);N.limit.__toDest=true;}
+    el.pause();el.srcObject=null;
+  }
+}
+async function setOut(){
+  const id=$('outSel').value;
+  try{await routeOutput(id);$('rOut').textContent=id?$('outSel').selectedOptions[0].text.slice(0,28):'default';}
+  catch(e){console.error(e);$('rOut').textContent='failed';}
+}
+$('outSel').onchange=()=>{if(ac)setOut();};
+// Firefox only lists output devices you've explicitly picked, via its own chooser
+if(navigator.mediaDevices?.selectAudioOutput){
+  $('pickOutRow').style.display='flex';
+  $('pickOut').onclick=async()=>{
+    try{const d=await navigator.mediaDevices.selectAudioOutput();
+      const sel=$('outSel');if(![...sel.options].some(o=>o.value===d.deviceId))sel.add(new Option(d.label||'Chosen output',d.deviceId));
+      sel.value=d.deviceId;if(ac)setOut();}
+    catch(e){console.warn(e);}
+  };
+}
+
+/* ---------- pickup / hang up ---------- */
+function click(){
+  if(!S.click||!ac)return;
+  const t=ac.currentTime,s=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();
+  s.buffer=noiseBuffer(0.08,i=>(Math.random()*2-1)*Math.exp(-i/(ac.sampleRate*0.006)));
+  f.type='bandpass';f.frequency.value=1800;f.Q.value=1.5;g.gain.value=0.9;
+  s.connect(f);f.connect(g);g.connect(N.out);s.start(t);
+}
+function setLive(on,silent){
+  S.live=on;const t=ac.currentTime;
+  N.wet.gain.setTargetAtTime(on?1:0,t,0.015);N.dry.gain.setTargetAtTime(on?0:1,t,0.015);
+  if(!silent)click();
+  hookUI();
+}
+function hookUI(){
+  const h=$('hook');h.classList.toggle('live',S.live&&!ringing);h.classList.toggle('ring',ringing);
+  h.innerHTML=ringing?'RINGING<small>P to '+(S.pickFirst&&ringOwner?'pick up':'answer')+' · H to hang up</small>'
+    :S.live?(active?(active.status==='hold'?'CALLER WAITING<small>'+esc(active.name)+' · P to put through</small>'
+      :'ON A CALL<small>'+esc(active.name)+'</small>'):'ON THE LINE<small>click or press P to hang up</small>')
+    :'ON HOOK<small>click or press P to pick up</small>';
+  updateLight();
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// picking up answers whoever is ringing
+function toggleHook(){
+  if(ringing){const who=ringOwner;stopRing();if(who)(S.pickFirst?pickUp:answer)(who);else setLive(true);return;}
+  if(active&&active.status==='hold'){resume(active);return;}   // put the waiting caller through
+  if(S.live&&active)hangUp(active,true);
+  setLive(!S.live);
+}
+$('hook').onclick=toggleHook;
+addEventListener('keydown',e=>{
+  if(!S.running||e.target.matches?.('input,select,textarea')||e.ctrlKey||e.metaKey||e.altKey)return;
+  const k=e.key.toLowerCase();
+  if(k==='p')toggleHook();
+  if(k==='r')ringing?stopRing():startRing(null);
+  if(k==='n')ringNext();
+  if(k==='h'){if(ringing)decline();else if(active)hangUp(active);}
+});
+
+/* ---------- haunted telephone ring ---------- */
+// an old two-bell ringer: a clapper hammers two metal bells ~20 times a second.
+// "haunt" detunes the bells into a tritone, makes them sag and warble, drops strikes and drowns it in reverb.
+let ringing=false,ringTimer=null,ringNodes=[],ringOwner=null;
+// remember live ring sources so hanging up can stop them; they drop out once finished
+const track=n=>{ringNodes.push(n);n.onended=()=>{const i=ringNodes.indexOf(n);if(i>=0)ringNodes.splice(i,1);};};
+function impulse(sec){
+  const len=ac.sampleRate*sec,b=ac.createBuffer(2,len,ac.sampleRate);
+  for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6);}
+  return b;
+}
+function ringBus(){
+  if(N.ring)return;
+  N.ring=ac.createGain();N.ringDry=ac.createGain();N.ringWet=ac.createGain();N.verb=ac.createConvolver();N.verb.buffer=impulse(4);
+  N.ring.connect(N.ringDry);N.ring.connect(N.verb);N.verb.connect(N.ringWet);
+  // the ring is in the room, not on the line, so it skips the phone filter
+  N.ringDry.connect(N.limit);N.ringWet.connect(N.limit);
+}
+function ringBurst(t0,dur){
+  const h=S.haunt/100,vol=S.ringVol/100;
+  ringBus();
+  setTimeout(()=>bell(dur),Math.max(0,(t0-ac.currentTime)*1000));   // the room light swells with each ring
+  N.ringDry.gain.setValueAtTime(vol*(1-h*0.45),t0);N.ringWet.gain.setValueAtTime(vol*(0.15+h*0.75),t0);
+  const env=ac.createGain();env.gain.value=0;env.connect(N.ring);
+  const end=t0+dur,stopAt=end+0.6;
+  // slow seasick warble shared by every partial
+  const lfo=ac.createOscillator(),lfoAmt=ac.createGain();lfo.frequency.value=0.35+h*0.4;lfoAmt.gain.value=h*45;lfo.connect(lfoAmt);
+  const base=880*(1-h*0.18),bells=[base,base*(1.19+h*0.225)];   // minor third, sliding toward a tritone
+  const partials=[[1,1],[2.76,0.45],[5.4,0.22],[8.93,0.1]];
+  bells.forEach((f,bi)=>{
+    for(const [ratio,amp] of partials){
+      const o=ac.createOscillator(),g=ac.createGain();
+      o.frequency.value=f*ratio+(bi?h*7:0);
+      lfoAmt.connect(o.detune);
+      // the pitch sags through each ring like a dying battery
+      o.detune.setValueAtTime(0,t0);o.detune.linearRampToValueAtTime(-h*140,end);
+      g.gain.value=amp*(bi?0.8:1)*0.18;o.connect(g);g.connect(env);o.start(t0);o.stop(stopAt);track(o);
+    }
+  });
+  lfo.start(t0);lfo.stop(stopAt);track(lfo);
+  // clapper strikes
+  const rate=20-h*5;
+  for(let t=t0;t<end;t+=1/rate*(1+(Math.random()-0.5)*h*0.3)){
+    if(Math.random()<h*0.07)continue;           // missed strikes, a stutter
+    env.gain.setValueAtTime(1,t);env.gain.setTargetAtTime(0.25,t+0.004,0.025);
+  }
+  env.gain.setTargetAtTime(0,end,0.06);
+  // a low drone and a breathy swell underneath, only when haunted
+  if(h>0.05){
+    const d=ac.createOscillator(),dg=ac.createGain();d.frequency.value=55;d.type='triangle';
+    dg.gain.setValueAtTime(0,t0);dg.gain.linearRampToValueAtTime(h*0.12*vol,t0+dur*0.5);dg.gain.linearRampToValueAtTime(0,end+0.4);
+    d.connect(dg);dg.connect(N.ring);d.start(t0);d.stop(stopAt);track(d);
+    const n=ac.createBufferSource(),nf=ac.createBiquadFilter(),ng=ac.createGain();
+    n.buffer=noiseBuffer(dur+1,()=>Math.random()*2-1);nf.type='bandpass';nf.frequency.value=700;nf.Q.value=3;
+    nf.frequency.setValueAtTime(500,t0);nf.frequency.linearRampToValueAtTime(1200,end);
+    ng.gain.setValueAtTime(0,t0);ng.gain.linearRampToValueAtTime(h*0.1*vol,t0+dur*0.6);ng.gain.linearRampToValueAtTime(0,end+0.5);
+    n.connect(nf);nf.connect(ng);ng.connect(N.ring);n.start(t0);n.stop(stopAt+0.5);track(n);
+  }
+}
+function ringCycle(){
+  if(!ringing||!ac)return;
+  const t=ac.currentTime+0.05;
+  if(S.ringStyle==='double'){ringBurst(t,0.4);ringBurst(t+0.6,0.4);ringTimer=setTimeout(ringCycle,3000);}
+  else{ringBurst(t,2);ringTimer=setTimeout(ringCycle,6000);}
+}
+// owner = the caller ringing in, or null for a plain ring
+function startRing(owner){
+  if(!ac)return;
+  if(ringing)stopRing();
+  // a plain ring means the phone is on the hook; an incoming caller doesn't cut you off mid-sentence
+  if(!owner&&S.live){if(active)hangUp(active,true);setLive(false);}
+  ringing=true;ringOwner=owner;if(owner)owner.status='ringing';
+  $('ringBtn').textContent='Ringing… (click to stop)';$('ringBtn').classList.add('on');
+  ringCycle();hookUI();renderCalls();
+}
+function stopRing(){
+  if(ringOwner&&ringOwner.status==='ringing')ringOwner.status='waiting';
+  ringing=false;ringOwner=null;clearTimeout(ringTimer);
+  $('ringBtn').textContent='Ring the phone';$('ringBtn').classList.remove('on');
+  if(ac){hookUI();renderCalls();}
+  if(!ac||!N.ring)return;
+  // silence everything at once: bells, drone, breath, the reverb tail and any burst still queued up
+  const t=ac.currentTime,old={ring:N.ring,dry:N.ringDry,wet:N.ringWet,verb:N.verb};
+  for(const g of [old.dry.gain,old.wet.gain]){g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(0,t+0.02);}
+  for(const n of ringNodes){try{n.stop(t+0.03);}catch(e){}}
+  ringNodes=[];
+  // drop the old bus (and the reverb still holding its tail); the next ring builds a fresh one
+  N.ring=null;
+  setTimeout(()=>{for(const n of Object.values(old))n.disconnect();},100);
+}
+$('ringBtn').onclick=()=>ringing?stopRing():startRing(null);
+$('ringStyle').onclick=()=>{S.ringStyle=S.ringStyle==='double'?'long':'double';
+  $('ringStyle').textContent='Pattern: '+(S.ringStyle==='double'?'double ring':'long ring');};
+
+/* ---------- switchboard: callers from voice clips ---------- */
+const calls=[];let active=null,callSeq=0;
+// clips are decoded once into plain audio buffers, which play in any audio context
+const decoder=new (window.OfflineAudioContext||window.webkitOfflineAudioContext)(1,1,48000);
+$('callFiles').onchange=async e=>{
+  for(const f of e.target.files){
+    const c={id:++callSeq,name:f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' '),preset:'same',status:'loading',buf:null,offset:0,src:null,startedAt:0};
+    calls.push(c);renderCalls();
+    try{c.buf=await decoder.decodeAudioData(await f.arrayBuffer());c.status='waiting';}
+    catch(err){console.error(err);c.status='error';}
+    renderCalls();
+  }
+  e.target.value='';
+};
+const fmtT=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+const pos=c=>c.src?Math.min(c.buf.duration,ac.currentTime-c.startedAt):c.offset;
+function paramsFor(c){return c.preset==='same'?S:PRESETS[c.preset];}
+function play(c){
+  const s=ac.createBufferSource();s.buffer=c.buf;s.connect(N.callBus);
+  s.start(0,c.offset);c.startedAt=ac.currentTime-c.offset;c.src=s;
+  s.onended=()=>{if(c.src===s){c.src=null;finish(c);}};
+}
+function halt(c){if(!c.src)return;const s=c.src;c.src=null;c.offset=Math.min(c.buf.duration,ac.currentTime-c.startedAt);try{s.stop();}catch(e){}}
+function gate(open){const t=ac.currentTime;N.callGate.gain.setTargetAtTime(open?1:0,t,0.02);}
+function answer(c){
+  if(!ac||!c.buf)return;
+  if(ringing)stopRing();
+  if(active&&active!==c)hangUp(active,true);
+  applyLine(N.them,paramsFor(c));
+  active=c;c.status='onair';
+  // everyone is on the phone: answering puts you on the line too
+  if(!S.live)setLive(true);else click();
+  stopDialTone();gate(true);play(c);hookUI();renderCalls();
+}
+// pick up but keep the caller waiting on the line until you put them through
+function pickUp(c){
+  if(!ac||!c.buf)return;
+  if(ringing)stopRing();
+  if(active&&active!==c)hangUp(active,true);
+  applyLine(N.them,paramsFor(c));
+  active=c;c.status='hold';c.offset=0;gate(false);stopDialTone();
+  if(!S.live)setLive(true);else click();
+  hookUI();renderCalls();
+}
+function hold(c){halt(c);c.status='hold';gate(false);click();hookUI();renderCalls();}
+function resume(c){c.status='onair';gate(true);play(c);click();hookUI();renderCalls();}
+function hangUp(c,quiet){
+  halt(c);c.offset=0;c.status='done';if(active===c){active=null;gate(false);}
+  if(!quiet){click();dialTone();}
+  hookUI();renderCalls();
+}
+// the caller finishes talking and hangs up on their end
+function finish(c){c.offset=0;c.status='done';if(active===c){active=null;gate(false);click();dialTone();}hookUI();renderCalls();}
+
+/* ---------- dial tone ---------- */
+// the North American dial tone (350 + 440 Hz), heard down your line once the other end is gone
+let dialNodes=null;
+function dialTone(){
+  if(!S.dialTone||!ac||!S.live)return;
+  stopDialTone();
+  const t=ac.currentTime+0.15,dur=S.dialLen,h=S.haunt/100,g=ac.createGain(),bp=bq('bandpass',400,0.9),o=[];
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.16,t+0.02);g.gain.setValueAtTime(0.16,t+dur-0.06);g.gain.linearRampToValueAtTime(0,t+dur);
+  // a touch of the ring's haunt: the tone wavers slightly
+  const lfo=ac.createOscillator(),amt=ac.createGain();lfo.frequency.value=0.6;amt.gain.value=h*12;lfo.connect(amt);
+  for(const f of [350,440]){const x=ac.createOscillator();x.frequency.value=f;amt.connect(x.detune);x.connect(bp);x.start(t);x.stop(t+dur+0.05);o.push(x);}
+  lfo.start(t);lfo.stop(t+dur+0.05);o.push(lfo);
+  bp.connect(g);g.connect(N.out);dialNodes={g,o};
+}
+function stopDialTone(){
+  if(!dialNodes||!ac)return;
+  const t=ac.currentTime;dialNodes.g.gain.cancelScheduledValues(t);dialNodes.g.gain.setValueAtTime(dialNodes.g.gain.value,t);dialNodes.g.gain.linearRampToValueAtTime(0,t+0.02);
+  for(const x of dialNodes.o){try{x.stop(t+0.03);}catch(e){}}
+  dialNodes=null;
+}
+// hang up on a ringing call without answering: lift the receiver and drop it straight back
+function decline(){
+  if(!ringing)return;
+  const who=ringOwner;stopRing();
+  if(who)who.status='declined';
+  click();setTimeout(click,110);
+  hookUI();renderCalls();
+}
+function ringNext(){
+  if(!ac||ringing)return;
+  const c=calls.find(c=>c.status==='waiting');if(c)startRing(c);
+}
+$('nextBtn').onclick=ringNext;
+
+/* ---------- room light: a window of solid colour on a second monitor ---------- */
+const LIGHT={idle:'#2a1606',ring:'#ffb347',line:'#1f7a4a',talk:'#3a6fd8',kiss:'#8b0000'};
+const LIGHT_NAME={idle:'Idle',ring:'Ringing',line:'On the line',talk:'Caller talking',kiss:'Kiss mood'};
+let lightWin=null,mood=null,bellOn=false,bellT=0,lightBright=1;
+function lightKey(){
+  const st=ringing?'ring':active&&active.status==='onair'?'talk':S.live&&S.running?'line':'idle';
+  return mood&&st!=='ring'?mood:st;   // a ring always shows through the mood
+}
+const shade=(hex,k)=>{const n=parseInt(hex.slice(1),16);return 'rgb('+[16,8,0].map(s=>Math.round((n>>s&255)*k)).join(',')+')';};
+function updateLight(){
+  const key=lightKey(),col=shade(LIGHT[key],lightBright*(key==='ring'&&!bellOn?0.2:1));
+  $('lightSwatch').style.background=col;$('lightName').textContent=LIGHT_NAME[key];
+  $('lightMood').textContent=mood&&key==='ring'?'(kiss mood after)':'';
+  if(lightWin&&!lightWin.closed)lightWin.document.body.style.background=col;
+  else if(lightWin){lightWin=null;$('lightBtn').textContent='Open light window';}
+  sendShow();
+}
+// glow at full strength for the length of one ring burst, then drop back
+function bell(dur){bellOn=true;updateLight();clearTimeout(bellT);bellT=setTimeout(()=>{bellOn=false;updateLight();},dur*1000);}
+function openLight(){
+  // reuses the same window if it's still open, e.g. after reloading this page
+  lightWin=window.open('','landlineLight','popup,width=720,height=420');
+  if(!lightWin){$('lightErr').textContent='The browser blocked the window. Allow pop-ups for this page (icon at the right of the address bar) and try again.';$('lightErr').style.display='block';return;}
+  $('lightErr').style.display='none';
+  const d=lightWin.document;
+  d.open();d.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Room light</title><style>
+    html,body{margin:0;height:100%;overflow:hidden}body{background:#000;transition:background .12s linear}
+    .tip{position:fixed;inset:auto 0 24px;text-align:center;font:13px system-ui,sans-serif;color:#fff;mix-blend-mode:difference;opacity:.7}
+    html:fullscreen .tip{display:none}html:fullscreen{cursor:none}
+    </style></head><body><div class="tip">Drag this onto your second monitor, then double-click for full screen. Esc to leave.</div></body></html>`);d.close();
+  d.addEventListener('dblclick',()=>d.fullscreenElement?d.exitFullscreen():d.documentElement.requestFullscreen().catch(()=>{}));
+  $('lightBtn').textContent='Light window open (click to bring it back)';
+  lightWin.focus();updateLight();
+}
+$('lightBtn').onclick=openLight;
+$('lightBright').oninput=e=>{lightBright=e.target.value/100;$('lightBrightVal').textContent=e.target.value+'%';updateLight();};
+for(const [id,k] of [['lcIdle','idle'],['lcRing','ring'],['lcLine','line'],['lcTalk','talk'],['lcKiss','kiss']])
+  $(id).oninput=e=>{LIGHT[k]=e.target.value;updateLight();};
+function toggleKiss(){mood=mood?null:'kiss';$('kissBtn').textContent='Kiss mood: '+(mood?'on':'off');$('kissBtn').classList.toggle('on',!!mood);updateLight();
+  showSend({kind:'mood',mood});
+  return mood?'lights: dark red':'lights: back to normal';}
+$('kissBtn').onclick=toggleKiss;
+setInterval(()=>{if(lightWin&&lightWin.closed)updateLight();},1000);   // notice when the light window gets closed
+
+/* ---------- stream overlays: tell the ghost-show overlays what the phone is doing ---------- */
+// goes through the overlay set's local alert server; if that isn't running, this quietly keeps retrying
+const SHOW_PORT=9099;
+let showWs=null,lastShow='';
+function showLink(){
+  showWs=new WebSocket('ws://localhost:'+SHOW_PORT);
+  showWs.onopen=()=>{$('showStat').textContent='connected';$('showStat').classList.add('ok');lastShow='';sendShow();showSend({kind:'mood',mood});};
+  showWs.onclose=()=>{$('showStat').textContent='alert server not running';$('showStat').classList.remove('ok');showWs=null;setTimeout(showLink,4000);};
+  showWs.onerror=()=>{};
+}
+function showSend(m){if(showWs&&showWs.readyState===1)showWs.send(JSON.stringify(Object.assign({scope:'show'},m)));}
+// one step like picking up passes through a few states in a row; wait a beat and send only where it lands
+let showT=0;
+function sendShow(){clearTimeout(showT);showT=setTimeout(flushShow,40);}
+function flushShow(){
+  const state=ringing?'ringing':active?(active.status==='onair'?'onair':'hold'):S.live&&S.running?'line':'idle';
+  const caller=ringing?(ringOwner?ringOwner.name:null):active?active.name:null;
+  if(state+'|'+caller===lastShow)return;
+  lastShow=state+'|'+caller;showSend({kind:'phone',state,caller});
+}
+const SHOW_ON=location.protocol==='file:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||new URLSearchParams(location.search).has('show');
+if(SHOW_ON)showLink();else{const g=$('showStat').closest('.group');if(g)g.hidden=true;}
+updateLight();
+
+/* ---------- hand-signal actions ---------- */
+// the camera module at the bottom calls these; each returns what happened, for the on-screen readout
+window.Hands={on:false};
+window.Phone={
+  ready:()=>S.running,
+  // ring the next waiting caller, or a plain ring if nobody is queued
+  ring(){
+    if(ringing)return 'already ringing';
+    if(active)return 'already on a call';
+    const c=calls.find(c=>c.status==='waiting');startRing(c||null);
+    return c?'ringing · '+c.name:'ringing';
+  },
+  // answer a ringing phone, get on the line, or hang up if you're already on it
+  pickUp(){
+    if(ringing){toggleHook();return 'picked up';}
+    if(!S.live){setLive(true);return 'on the line';}
+    if(active)hangUp(active,true);
+    setLive(false);return 'hung up';
+  },
+  // the caller starts talking
+  putThrough(){
+    if(ringing&&ringOwner){answer(ringOwner);return 'put through';}
+    if(active){if(active.status==='hold'){resume(active);return 'put through';}return 'caller already talking';}
+    const c=calls.find(c=>c.status==='waiting');
+    if(!c)return 'no caller waiting';
+    answer(c);return 'put through · '+c.name;
+  },
+  kiss:toggleKiss,
+  // the finished line output as a stream, for recording (null until the mic is started)
+  recAudio(){if(!ac||!N.limit)return null;if(!N.recDest){N.recDest=ac.createMediaStreamDestination();N.limit.connect(N.recDest);}return N.recDest.stream;},
+  // turning hand signals on means the filter waits for you to pick up
+  onHook(){if(S.running&&S.live&&!active&&!ringing)setLive(false,true);}
+};
+$('callVol').oninput=e=>{S.callVol=e.target.value/100;applyAll();};
+
+function renderCalls(){
+  const box=$('calls');$('nextBtn').disabled=!ac||!calls.some(c=>c.status==='waiting');
+  if(!calls.length){box.innerHTML='<div class="empty">No callers yet. Add voice clips and each one becomes a caller you can ring in.</div>';return;}
+  box.innerHTML='';
+  const live=!!ac;
+  for(const c of calls){
+    const row=document.createElement('div');
+    row.className='call '+({onair:'onair',ringing:'ringing',hold:'hold',done:'done',declined:'done'}[c.status]||'');
+    const dur=c.buf?fmtT(c.buf.duration):'';
+    row.innerHTML=`<span class="lamp"></span>
+      <input type="text" value="${esc(c.name)}" aria-label="Caller name">
+      <select aria-label="Line this caller is on"><option value="same">Same line as me</option>${Object.keys(PRESETS).map(p=>`<option value="${p}">${p}</option>`).join('')}</select>
+      <div class="time"><span class="t">${c.status==='loading'?'loading…':c.status==='error'?'can\'t read this file':(c.status==='declined'?'declined · ':'')+'0:00 / '+dur}</span><div class="prog"><i></i></div></div>
+      <div class="acts"></div>`;
+    const [name,preset]=[row.querySelector('input'),row.querySelector('select')];
+    name.oninput=()=>{c.name=name.value;if(active===c)hookUI();};
+    preset.value=c.preset;preset.onchange=()=>{c.preset=preset.value;if(active===c)applyLine(N.them,paramsFor(c));};
+    const acts=row.querySelector('.acts'),btn=(label,fn,cls)=>{const b=document.createElement('button');b.textContent=label;if(cls)b.className=cls;b.disabled=!live&&cls!=='x';b.onclick=fn;acts.appendChild(b);};
+    if(c.status==='waiting'){btn('Ring',()=>startRing(c));btn('Answer',()=>answer(c));}
+    if(c.status==='ringing'){btn(S.pickFirst?'Pick up':'Answer',()=>(S.pickFirst?pickUp:answer)(c),'on');btn('Hang up',decline);}
+    if(c.status==='onair'){btn('Hold',()=>hold(c));btn('Hang up',()=>hangUp(c));}
+    if(c.status==='hold'){btn(c.offset>0?'Resume':'Put through',()=>resume(c),'on');btn('Hang up',()=>hangUp(c));}
+    if(c.status==='done'||c.status==='declined'){btn(c.status==='declined'?'Call back':'Reset',()=>{c.status='waiting';renderCalls();});}
+    if(!['onair','ringing','hold','loading'].includes(c.status))
+      btn('✕',()=>{calls.splice(calls.indexOf(c),1);renderCalls();},'x');
+    c.el=row;box.appendChild(row);
+  }
+}
+// progress bars tick along with the scope
+function tickCalls(){
+  for(const c of calls){
+    if(!c.el||!c.buf||!ac)continue;
+    const p=pos(c);c.el.querySelector('.t').textContent=(c.status==='declined'?'declined · ':'')+fmtT(p)+' / '+fmtT(c.buf.duration);
+    c.el.querySelector('.prog i').style.width=(p/c.buf.duration*100)+'%';
+  }
+}
+
+/* ---------- random dropouts ---------- */
+setInterval(()=>{
+  if(!ac)return;
+  for(const [L,on] of [[N.me,S.live],[N.them,!!active]]){
+    if(!L||!on||!L.params||Math.random()>L.params.wobble/100*0.06)continue;
+    const t=ac.currentTime,g=L.wobble.gain,d=0.05+Math.random()*0.15;
+    g.cancelScheduledValues(t);g.setValueAtTime(1,t);g.linearRampToValueAtTime(0.05,t+0.01);g.setValueAtTime(0.05,t+d);g.linearRampToValueAtTime(1,t+d+0.02);
+  }
+},200);
+
+/* ---------- devices ---------- */
+async function listDevices(){
+  if(!navigator.mediaDevices?.enumerateDevices)return;
+  const ds=await navigator.mediaDevices.enumerateDevices();
+  const mic=$('micSel'),out=$('outSel'),mv=mic.value,ov=out.value;
+  // until mic permission is granted the browser hides device ids and names, so those entries are useless
+  const real=k=>ds.filter(d=>d.kind===k&&d.deviceId&&d.deviceId!=='default'&&d.deviceId!=='communications');
+  const mics=real('audioinput'),outs=real('audiooutput');
+  mic.innerHTML='<option value="">System default mic</option>'+(mics.length?mics.map((d,i)=>`<option value="${d.deviceId}">${esc(d.label||'Microphone '+(i+1))}</option>`).join('')
+    :'<option disabled>Press Start mic once to list all your mics</option>');
+  const keep=[...out.options].filter(o=>o.value&&!outs.some(d=>d.deviceId===o.value));   // devices picked through Firefox's chooser
+  out.innerHTML='<option value="">Default output</option>'+outs.map((d,i)=>`<option value="${d.deviceId}">${esc(d.label||'Output '+(i+1))}</option>`).join('');
+  for(const o of keep)out.add(o);
+  if([...mic.options].some(o=>o.value===mv))mic.value=mv;
+  if([...out.options].some(o=>o.value===ov))out.value=ov;
+  if(!CTX_SINK&&!EL_SINK){out.disabled=true;$('outHint').textContent='This browser can\'t choose an output device. Use Windows sound settings to send it to another device, or open this page in Chrome or Edge.';}
+}
+async function openMic(){
+  if(micStream)micStream.getTracks().forEach(t=>t.stop());
+  const id=$('micSel').value,audio={echoCancellation:false,autoGainControl:false,noiseSuppression:S.ns,channelCount:1};
+  if(id)audio.deviceId={exact:id};
+  micStream=await navigator.mediaDevices.getUserMedia({audio});
+  if(src)src.disconnect();src=ac.createMediaStreamSource(micStream);src.connect(N.inGain);
+}
+function micError(e){
+  const why={NotAllowedError:'Mic permission was blocked. Click the camera/mic icon in the address bar, allow the microphone, then try again.',
+    NotFoundError:'No microphone was found. Check it is plugged in and not disabled in Windows sound settings.',
+    NotReadableError:'The mic is busy or unavailable. Another app may have it locked. Close it (or remove the mic from OBS for now) and try again.',
+    OverconstrainedError:'That mic is no longer available. Pick another one from the list.'}[e?.name];
+  $('rStat').textContent='mic error';$('micErr').textContent=why||('Could not start: '+(e?.message||e));$('micErr').style.display='block';
+}
+$('startBtn').onclick=async()=>{
+  if(S.running){
+    window.Rec?.stop();stopRing();for(const c of calls){if(c.src){try{c.src.stop();}catch(e){}c.src=null;}if(c.status==='onair'||c.status==='hold')c.status='waiting';}
+    active=null;micStream?.getTracks().forEach(t=>t.stop());$('outEl').pause();$('outEl').srcObject=null;
+    await ac.close();ac=null;N={};src=null;micStream=null;S.running=false;S.live=false;
+    $('startBtn').textContent='Start mic';$('startBtn').classList.remove('on');$('hook').disabled=true;$('ringBtn').disabled=true;$('hook').className='';
+    $('hook').innerHTML='ON HOOK<small>start the mic first</small>';$('rStat').textContent='idle';renderCalls();updateLight();return;}
+  $('micErr').style.display='none';$('rStat').textContent='starting…';
+  if(!navigator.mediaDevices?.getUserMedia){micError({message:'this browser blocks the mic here. Open the file in Chrome, Edge or Firefox.'});return;}
+  try{
+    await build();await ac.resume();
+    await openMic();await listDevices();   // names only become visible once permission is granted
+    if($('outSel').value)await setOut();
+    S.running=true;$('startBtn').textContent='Stop mic';$('startBtn').classList.add('on');$('hook').disabled=false;$('ringBtn').disabled=false;
+    $('rStat').textContent='running';
+    if(Hands.on)setLive(false,true);else setLive(true);   // with hand signals, wait for the phone hand
+    renderCalls();
+    const lat=((ac.baseLatency||0)+(ac.outputLatency||0))*1000;$('rLat').textContent=lat?Math.round(lat)+' ms':'—';
+  }catch(e){console.error(e);micError(e);try{await ac?.close();}catch(_){}ac=null;N={};}
+};
+$('micSel').onchange=async()=>{if(!S.running)return;try{$('micErr').style.display='none';await openMic();}catch(e){micError(e);}};
+listDevices();
+navigator.mediaDevices?.addEventListener?.('devicechange',()=>{if(S.running)listDevices();});
+
+/* ---------- controls ---------- */
+function syncUI(){for(const k in FMT){$(k).value=S[k];$(k+'Val').textContent=FMT[k](S[k]);}}
+for(const k in FMT)$(k).oninput=e=>{S[k]=+e.target.value;$(k+'Val').textContent=FMT[k](S[k]);applyAll();markPreset();};
+function markPreset(){for(const b of $('presets').children){const p=PRESETS[b.textContent];b.classList.toggle('on',Object.keys(p).every(k=>S[k]===p[k]));}}
+for(const name in PRESETS){const b=document.createElement('button');b.textContent=name;
+  b.onclick=()=>{Object.assign(S,PRESETS[name]);syncUI();applyAll();markPreset();};
+  $('presets').appendChild(b);}
+$('humHz').onclick=()=>{S.humHz=S.humHz===60?50:60;$('humHz').textContent='Hum: '+S.humHz+' Hz';applyAll();if(active)applyLine(N.them,paramsFor(active));};
+$('tClick').onclick=()=>{S.click=!S.click;$('tClick').classList.toggle('on',S.click);};
+$('tPickFirst').onclick=()=>{S.pickFirst=!S.pickFirst;$('tPickFirst').classList.toggle('on',S.pickFirst);if(ac){hookUI();renderCalls();}};
+$('tDial').onclick=()=>{S.dialTone=!S.dialTone;$('tDial').classList.toggle('on',S.dialTone);};
+$('tNS').onclick=()=>{S.ns=!S.ns;$('tNS').classList.toggle('on',S.ns);if(S.running)openMic();};
+syncUI();markPreset();
+
+/* ---------- scope ---------- */
+const cv=$('scope'),g=cv.getContext('2d');
+let tdIn=null,td=null,fd=null;
+function rms(a){let s=0;for(const v of a)s+=v*v;return Math.sqrt(s/a.length);}
+function draw(){
+  requestAnimationFrame(draw);
+  const W=cv.width,H=cv.height;
+  g.fillStyle='#070503';g.fillRect(0,0,W,H);
+  // phone band marker on a log frequency axis (80 Hz .. 12 kHz)
+  const fx=f=>Math.log(f/80)/Math.log(12000/80)*W;
+  g.fillStyle='rgba(255,179,71,0.07)';g.fillRect(fx(S.hp),0,fx(S.lp)-fx(S.hp),H);
+  g.strokeStyle='rgba(255,179,71,0.35)';g.setLineDash([6,8]);g.lineWidth=2;
+  for(const f of [S.hp,S.lp]){g.beginPath();g.moveTo(fx(f),0);g.lineTo(fx(f),H);g.stroke();}
+  g.setLineDash([]);
+  g.fillStyle='rgba(255,179,71,0.6)';g.font='22px ui-monospace, Consolas, monospace';
+  g.fillText(FMT.hp(S.hp),fx(S.hp)+8,30);g.fillText(FMT.lp(S.lp),fx(S.lp)-150,30);
+  if(!ac||!N.anOut){g.fillStyle='#a8957d';g.textAlign='center';g.font='28px system-ui, sans-serif';g.fillText('Start the mic to hear yourself on the line',W/2,H/2);g.textAlign='start';return;}
+  const an=N.anOut;
+  fd=fd||new Uint8Array(an.frequencyBinCount);td=td||new Float32Array(an.fftSize);tdIn=tdIn||new Float32Array(N.anIn.fftSize);
+  an.getByteFrequencyData(fd);an.getFloatTimeDomainData(td);N.anIn.getFloatTimeDomainData(tdIn);
+  const ny=ac.sampleRate/2;g.fillStyle='rgba(255,179,71,0.28)';
+  for(let x=0;x<W;x+=6){const f=80*Math.pow(12000/80,x/W),i=Math.min(fd.length-1,Math.round(f/ny*fd.length)),h=fd[i]/255*H*0.9;g.fillRect(x,H-h,5,h);}
+  g.strokeStyle=S.live?'#7dffb0':'#f1e6d6';g.lineWidth=3;g.shadowColor=g.strokeStyle;g.shadowBlur=12;g.beginPath();
+  for(let i=0;i<td.length;i+=2){const x=i/td.length*W,y=H/2-td[i]*H*0.45;i?g.lineTo(x,y):g.moveTo(x,y);}
+  g.stroke();g.shadowBlur=0;
+  $('mIn').style.width=Math.min(100,rms(tdIn)*400)+'%';$('mOut').style.width=Math.min(100,rms(td)*400)+'%';
+  tickCalls();
+  // the caller's voice level, for the ghost-show waveform and EMF meter (10 times a second)
+  if(active&&active.status==='onair'&&performance.now()-(draw.sent||0)>100){draw.sent=performance.now();showSend({kind:'level',v:+rms(td).toFixed(3)});}
+}
+requestAnimationFrame(draw);
+</script>
+
+<script type="module">
+/* ---------- hand signals: run the phone from the camera ---------- */
+// cheek touch (or peace sign) rings, phone hand picks up / hangs up, finger gun puts the caller through
+import { HandLandmarker, FaceDetector, FilesetResolver }
+  from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+
+const $=id=>document.getElementById(id);
+const cam=$('cam'),view=$('camView'),g2=view.getContext('2d');
+const MONO='ui-monospace, "SF Mono", Consolas, monospace';
+const HAND_URL='https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+const FACE_URL='https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite';
+const HS={ring:'cheek',hold:400};
+let hands=null,face=null,CONN=[],camOn=false,res=null,lastVT=-1,lastFace=null,lockUntil=0,flash=null;
+const ST={ring:{},phone:{},gun:{}};
+const CHIP={ring:$('sgRing'),phone:$('sgPhone'),gun:$('sgGun'),kiss:$('sgKiss')};
+const ACT={ring:()=>Phone.ring(),phone:()=>Phone.pickUp(),gun:()=>Phone.putThrough(),kiss:()=>Phone.kiss()};
+const COL={phone:'#7dffb0',gun:'#ffb347',peace:'#ff9d4d',open:'#f1e6d6',none:'#a8957d'};
+const NAME={phone:'phone hand',gun:'finger gun',peace:'peace sign',open:'open hand',none:'hand'};
+
+async function loadModels(){
+  if(hands)return;
+  const vision=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+  const make=async delegate=>{
+    hands=await HandLandmarker.createFromOptions(vision,{baseOptions:{modelAssetPath:HAND_URL,delegate},numHands:2,runningMode:'VIDEO'});
+    face=await FaceDetector.createFromOptions(vision,{baseOptions:{modelAssetPath:FACE_URL,delegate},runningMode:'VIDEO',minDetectionConfidence:0.5});
+  };
+  try{await make('GPU');}catch(e){console.warn('GPU tracking unavailable, using CPU',e);hands=face=null;await make('CPU');}
+  CONN=HandLandmarker.HAND_CONNECTIONS;
+}
+
+/* ---------- camera ---------- */
+$('camBtn').onclick=async()=>{
+  if(camOn){
+    cam.srcObject?.getTracks().forEach(t=>t.stop());cam.srcObject=null;camOn=false;Hands.on=false;res=null;lastFace=null;
+    $('camBtn').textContent='Start camera';$('camBtn').classList.remove('on');$('sgSee').textContent='—';return;
+  }
+  try{
+    $('camBtn').textContent='Starting…';
+    const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720}},audio:false});
+    cam.srcObject=stream;await cam.play();
+    view.width=640;view.height=Math.round(640*(cam.videoHeight||720)/(cam.videoWidth||1280));
+    $('camBtn').textContent='Loading tracker…';
+    await loadModels();
+    camOn=true;Hands.on=true;Phone.onHook();
+    $('camBtn').textContent='Stop camera';$('camBtn').classList.add('on');
+    schedule();
+  }catch(e){
+    console.error(e);cam.srcObject?.getTracks().forEach(t=>t.stop());cam.srcObject=null;
+    $('camBtn').textContent='Start camera';
+    $('sgSee').textContent=e?.name==='NotAllowedError'?'camera blocked, allow it in the address bar':e?.name==='NotReadableError'?'camera busy (is OBS using it?)':'tracker failed to load, check connection';
+  }
+};
+$('ringSig').onchange=e=>{HS.ring=e.target.value;$('sgRingHow').textContent=HS.ring==='cheek'?'touch your cheek':'peace sign ✌';};
+$('sigHold').oninput=e=>{HS.hold=+e.target.value;$('sigHoldVal').textContent=HS.hold+' ms';};
+
+/* ---------- reading the hand ---------- */
+const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+// finger straight = its tip is well past its middle joint, measured from the wrist
+function shape(q){
+  const palm=d(q[0],q[9])||1;
+  const ext=(t,j,k=1.12)=>d(q[0],q[t])>d(q[0],q[j])*k,curl=(t,j)=>d(q[0],q[t])<d(q[0],q[j])*1.05;
+  const I=ext(8,6),M=ext(12,10),R=ext(16,14),P=ext(20,18,1.08);
+  const ic=curl(8,6),mc=curl(12,10),rc=curl(16,14),pc=curl(20,18);
+  const thumb=d(q[4],q[5])>palm*0.5&&d(q[4],q[9])>palm*0.7;
+  if(thumb&&P&&ic&&mc&&rc)return 'phone';
+  if(thumb&&I&&mc&&rc&&pc)return 'gun';
+  if(I&&M&&rc&&pc&&d(q[8],q[12])>palm*0.3)return 'peace';
+  if(I&&M&&R&&P)return 'open';
+  return 'none';
+}
+// a cheek on each side of the face: out from the nose toward the ear, between eye and mouth height.
+// Face keypoints: 0,1 eyes · 2 nose · 3 mouth · 4,5 ears
+function cheeks(k){
+  const fw=d(k[4],k[5])||1;
+  return [[0,4],[1,5]].map(([e,ear])=>({x:k[2].x+(k[ear].x-k[2].x)*0.6,y:(k[e].y+k[3].y)/2+fw*0.05,r:fw*0.3}));
+}
+const mouthZone=k=>{const fw=d(k[4],k[5])||1;return{x:k[3].x,y:k[3].y,r:fw*0.22,fw};};
+// blowing a kiss: fingertips held to the lips, then the hand pulls away or opens (or leaves the frame)
+const K={t0:0,last:0,armed:0,from:null,p:0};
+function kissStep(hs,mz,now){
+  const at=hs.find(h=>h.mouth);
+  const p=dwell(K,!!at&&now>=lockUntil,now,250);
+  if(at&&p>=1){K.armed=now;K.from=mz;}
+  K.p=K.armed?1:p;
+  if(at||!K.armed)return false;
+  if(now-K.armed>1500){K.armed=0;return false;}   // lingered too long without the "away" part
+  const gone=!hs.length||hs.some(h=>h.shape==='open'||d(h.q[9],K.from)>K.from.fw*0.8);
+  if(gone){K.armed=0;K.t0=0;K.p=0;return true;}
+  return false;
+}
+function touching(q,cs){
+  for(const i of [4,8,12,16,20,9])for(const c of cs)if(d(q[i],c)<c.r)return q[i];
+  return null;
+}
+// a hold timer that forgives a few dropped frames
+function dwell(s,on,now,need){
+  if(on){s.last=now;if(!s.t0)s.t0=now;}
+  else if(s.t0&&now-s.last>150)s.t0=0;
+  return s.t0?Math.min(1,(now-s.t0)/need):0;
+}
+
+/* ---------- loop ---------- */
+// animation frames stop when the tab is hidden, so fall back to a timer to keep listening
+let rafId=0,toId=0;
+function schedule(){if(document.hidden)toId=setTimeout(tick,50);else rafId=requestAnimationFrame(tick);}
+function tick(){rafId=toId=0;step(performance.now());if(camOn)schedule();else idle();}
+document.addEventListener('visibilitychange',()=>{if(!camOn)return;cancelAnimationFrame(rafId);clearTimeout(toId);schedule();});
+
+function idle(){
+  const W=view.width,H=view.height;g2.fillStyle='#070503';g2.fillRect(0,0,W,H);
+  g2.fillStyle='#a8957d';g2.textAlign='center';g2.font='16px system-ui, sans-serif';
+  g2.fillText('Start the camera to answer calls with hand signals',W/2,H/2);g2.textAlign='start';
+}
+idle();
+
+function step(now){
+  const W=view.width,H=view.height,px=p=>({x:(1-p.x)*W,y:p.y*H});
+  g2.save();g2.translate(W,0);g2.scale(-1,1);g2.drawImage(cam,0,0,W,H);g2.restore();
+  g2.fillStyle='rgba(7,5,3,0.35)';g2.fillRect(0,0,W,H);
+  if(recVideo)drawClean();   // the recording gets the bare camera, before any tracking marks
+  if(!hands||cam.readyState<2)return;
+  if(cam.currentTime!==lastVT){
+    lastVT=cam.currentTime;
+    try{res=hands.detectForVideo(cam,now);}catch(e){}
+    try{const f=face.detectForVideo(cam,now).detections[0];if(f)lastFace={kp:f.keypoints.map(px),t:now};}catch(e){}
+  }
+  const hs=(res?.landmarks||[]).map(l=>{const q=l.map(px);return{q,shape:shape(q)};});
+  // a hand on the face often hides it from the detector, so remember the face for a moment
+  const fk=lastFace&&now-lastFace.t<2000?lastFace.kp:null;
+  const cs=HS.ring==='cheek'&&fk?cheeks(fk):null,mz=fk?mouthZone(fk):null;
+  const on={},at={};
+  for(const h of hs){
+    // fingertips on the lips: a kiss, not a cheek touch
+    h.mouth=!!mz&&h.shape!=='phone'&&h.shape!=='gun'&&[4,8,12].some(i=>d(h.q[i],mz)<mz.r);
+    if(h.mouth)continue;
+    if(h.shape==='phone'){on.phone=true;at.phone=h.q[9];}
+    if(h.shape==='gun'){on.gun=true;at.gun=h.q[9];}
+    if(HS.ring==='peace'&&h.shape==='peace'){on.ring=true;at.ring=h.q[9];}
+    // cheek touch only counts with a plain hand, so the phone hand held by your ear doesn't also ring
+    if(cs&&(h.shape==='none'||h.shape==='open')){const t=touching(h.q,cs);if(t){on.ring=true;at.ring=t;h.touch=true;}}
+  }
+  // each sign fires once, then has to be let go before it can fire again
+  for(const k in ST){
+    const s=ST[k];
+    if(on[k])s.seen=now;else if(s.fired&&now-(s.seen||0)>250)s.fired=false;
+    s.p=dwell(s,on[k]&&!s.fired&&now>=lockUntil,now,HS.hold);
+    CHIP[k].style.setProperty('--p',s.p);
+    if(s.p>=1){s.t0=0;s.p=0;s.fired=true;lockUntil=now+1000;fire(k,at[k],now);}
+  }
+  if(kissStep(hs,mz,now)){lockUntil=now+1000;fire('kiss',K.from,now);}
+  CHIP.kiss.style.setProperty('--p',K.p);
+  $('sgSee').textContent=hs.length?hs.map(h=>h.mouth?'hand at lips':h.touch?'hand on cheek':NAME[h.shape]).join(' + '):'no hands';
+  if(mz){g2.save();g2.setLineDash([3,5]);g2.lineWidth=1.5;g2.strokeStyle=K.armed?'rgba(255,90,110,0.95)':'rgba(255,90,110,0.35)';
+    g2.beginPath();g2.arc(mz.x,mz.y,mz.r,0,7);g2.stroke();
+    if(K.armed){g2.fillStyle='#ff5a6e';g2.font=`700 12px ${MONO}`;g2.textAlign='center';g2.fillText('NOW BLOW',mz.x,mz.y+mz.r+16);g2.textAlign='start';}
+    g2.restore();}
+
+  // draw: cheek targets, hand skeletons, hold rings, and a flash when a sign fires
+  if(cs){g2.save();g2.setLineDash([4,6]);g2.lineWidth=1.5;
+    for(const c of cs){g2.strokeStyle=on.ring?'rgba(255,179,71,0.9)':'rgba(255,179,71,0.35)';g2.beginPath();g2.arc(c.x,c.y,c.r,0,7);g2.stroke();}
+    g2.restore();}
+  for(const h of hs){
+    const col=h.touch?COL.gun:COL[h.shape],q=h.q;
+    g2.strokeStyle=col;g2.globalAlpha=h.shape==='none'&&!h.touch?0.5:0.9;g2.lineWidth=2;g2.beginPath();
+    for(const c of CONN){g2.moveTo(q[c.start].x,q[c.start].y);g2.lineTo(q[c.end].x,q[c.end].y);}g2.stroke();
+    g2.fillStyle=col;for(const i of [4,8,12,16,20])g2.fillRect(q[i].x-3,q[i].y-3,6,6);
+    g2.globalAlpha=1;g2.font=`600 12px ${MONO}`;g2.fillText((h.touch?'HAND ON CHEEK':NAME[h.shape].toUpperCase()),q[0].x-30,q[0].y+22);
+  }
+  for(const k in ST){const s=ST[k];if(!s.p||!at[k])continue;const c=at[k];
+    g2.strokeStyle='#ffb347';g2.lineWidth=4;g2.shadowColor='#ffb347';g2.shadowBlur=10;
+    g2.beginPath();g2.arc(c.x,c.y,26,-Math.PI/2,-Math.PI/2+s.p*Math.PI*2);g2.stroke();g2.shadowBlur=0;}
+  if(flash){const f=(now-flash.t)/900;
+    if(f>=1)flash=null;
+    else{const c=flash.at||{x:W/2,y:H/2};g2.globalAlpha=1-f;g2.strokeStyle='#7dffb0';g2.lineWidth=3;
+      g2.beginPath();g2.arc(c.x,c.y,26+f*60,0,7);g2.stroke();
+      g2.fillStyle='#eafff1';g2.font=`700 16px ${MONO}`;g2.textAlign='center';g2.fillText(flash.text.toUpperCase(),c.x,c.y-40-f*20);
+      g2.textAlign='start';g2.globalAlpha=1;}}
+}
+function fire(k,at,now){
+  const text=Phone.ready()||k==='kiss'?ACT[k]():'start the mic first';   // the light works without the mic
+  flash={text,at,t:now};$('sgLast').textContent=text;
+  CHIP[k].classList.add('fire');setTimeout(()=>CHIP[k].classList.remove('fire'),700);
+}
+
+/* ---------- recording: clean camera + the line's sound ---------- */
+// the camera is redrawn onto its own full-size canvas with no tracking marks, so only that goes in the file
+const rc=document.createElement('canvas'),rctx=rc.getContext('2d');
+const REC={cam:true,mirror:true};
+let rec=null,recChunks=[],recT0=0,recTimer=0,recVideo=false;
+function drawClean(){
+  if(!camOn||cam.readyState<2){rctx.fillStyle='#000';rctx.fillRect(0,0,rc.width,rc.height);return;}
+  rctx.save();if(REC.mirror){rctx.translate(rc.width,0);rctx.scale(-1,1);}
+  rctx.drawImage(cam,0,0,rc.width,rc.height);rctx.restore();
+}
+const pickMime=video=>(video?['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm']:['audio/webm;codecs=opus','audio/webm'])
+  .find(m=>MediaRecorder.isTypeSupported(m))||'';
+function recError(msg){$('recErr').textContent=msg;$('recErr').style.display=msg?'block':'none';}
+function startRec(){
+  const audio=Phone.recAudio(),video=camOn&&REC.cam;
+  if(!audio&&!video){recError('Start the mic or the camera first.');return;}
+  recError('');
+  const tracks=[];
+  if(video){rc.width=cam.videoWidth||1280;rc.height=cam.videoHeight||720;drawClean();tracks.push(...rc.captureStream(30).getVideoTracks());}
+  if(audio)tracks.push(...audio.getAudioTracks());
+  const mime=pickMime(video);
+  try{rec=new MediaRecorder(new MediaStream(tracks),mime?{mimeType:mime,videoBitsPerSecond:12e6,audioBitsPerSecond:192000}:undefined);}
+  catch(e){console.error(e);recError('This browser can\'t record here. Try Chrome or Edge.');return;}
+  recChunks=[];recVideo=video;
+  rec.ondataavailable=e=>{if(e.data.size)recChunks.push(e.data);};
+  rec.onstop=()=>{
+    recVideo=false;clearInterval(recTimer);
+    const blob=new Blob(recChunks,{type:video?'video/webm':'audio/webm'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=(video?'landline-':'landline-audio-')+Date.now()+'.webm';a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    $('recBtn').textContent='Record';$('recBtn').classList.remove('live');$('rRec').textContent='off';$('rRec').classList.remove('recon');
+  };
+  rec.start(1000);recT0=performance.now();
+  $('recBtn').textContent='Stop recording';$('recBtn').classList.add('live');$('rRec').classList.add('recon');
+  const tickRec=()=>{const s=Math.floor((performance.now()-recT0)/1000);$('rRec').textContent=(video?'● ':'● sound ')+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+  tickRec();recTimer=setInterval(tickRec,250);
+}
+function stopRec(){if(rec&&rec.state==='recording')rec.stop();}
+$('recBtn').onclick=()=>rec&&rec.state==='recording'?stopRec():startRec();
+$('tRecCam').onclick=()=>{REC.cam=!REC.cam;$('tRecCam').classList.toggle('on',REC.cam);};
+$('tRecMirror').onclick=()=>{REC.mirror=!REC.mirror;$('tRecMirror').classList.toggle('on',REC.mirror);};
+// stopping the mic shuts its audio down, so save what's been recorded first
+window.Rec={stop:stopRec};
+</script>
+</body>
+</html>

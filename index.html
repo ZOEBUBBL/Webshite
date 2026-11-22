@@ -146,6 +146,18 @@ details.findme[open]>summary::after{transform:rotate(-135deg);margin-bottom:-4px
 
 /* links & material */
 .mat{margin:18px 0 16px}
+.facts a.flink{color:var(--acc);font-weight:bold;text-decoration:underline;text-underline-offset:3px}
+.facts a.flink:hover{color:#fff}
+.eps{display:grid;gap:6px;margin:4px 0 16px}
+.ep{background:var(--panel2);border:1px solid var(--edge);border-radius:3px;overflow:hidden}
+.ep[open]{border-color:var(--edgeHi)}
+.ep summary{cursor:pointer;list-style:none;display:flex;gap:10px;align-items:baseline;padding:10px 12px;min-height:44px}
+.ep summary::-webkit-details-marker{display:none}
+.ep summary::before{content:'▸';color:var(--acc);width:10px}
+.ep[open] summary::before{content:'▾'}
+.ep summary b{color:var(--acc);font-size:13px;white-space:nowrap}
+.ep summary small{color:var(--dim);font-size:12px}
+.ep-v iframe{display:block;width:100%;aspect-ratio:16/9;border:0;background:#000}
 .mat-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-bottom:10px}
 .mat-links a{display:flex;flex-direction:column;justify-content:center;min-height:52px;padding:8px 12px;background:var(--panel2);border:1px solid var(--edge);border-radius:3px;color:var(--ink);font-weight:normal}
 .mat-links a:hover{border-color:var(--acc);text-decoration:none}
@@ -400,11 +412,11 @@ const PROJECTS = [
    about:'A web app where my friends and I place bets with each other on sports, events and whatever silly thing comes up. No real money, just bragging rights. It has seasonal modules, like a World Cup 2026 bracket.',
    facts:{Built:'Next.js',Hosted:'Railway',Access:'Invite only'},
    url:'', source:''},
-  {id:'landline', cat:'programs', name:'The Landline', status:'wip', glyph:'phone', color:'#5ee6d0',
-   tagline:'A haunted call-in line for the stream.',
-   about:'Leave a voice message on the line and it might turn up on stream, run through an old-phone filter. It comes with a ghost-hunting kit: a spirit box, an EMF meter and a thermometer that finds cold spots. Opening to friends first, then everyone.',
-   facts:{Stage:'Testing with friends',Hosted:'Cloudflare'},
-   url:'', source:''},
+  {id:'landline', cat:'programs', name:'The Landline', status:'live', glyph:'phone', color:'#5ee6d0',
+   tagline:'Put your voice on an old telephone line.',
+   about:'The phone line I use for the haunted call-in show. Talk into your mic and you come out the other end of a crackly old landline. Load voice clips onto the switchboard as callers, ring them in and pick up. With your camera on, hand signals ring and answer the phone, and you can record the whole call.',
+   facts:{Where:'In your browser',Needs:'A microphone (camera optional)','Works best in':'Chrome or Edge'},
+   url:'landline/', source:''},
   {id:'voice-studio', cat:'programs', name:'Voice Studio', status:'live', glyph:'mic', color:'#ff9a5e',
    tagline:'Record voice lines for my projects.',
    about:'A little recording booth anyone can use to lend their voice to my games and streams. Pick a line, read it, record it and send it over.',
@@ -423,31 +435,29 @@ const PROJECTS = [
    ], source:''},
   {id:'transition', cat:'videos', name:'Transition Videos', status:'live', glyph:'mirror', color:'#8b7bff',
    tagline:'Videos about my transition.',
-   about:'Video diaries about my transition, in the order I made them. Start with the first one, or play the whole playlist.',
-   facts:{Where:'YouTube',Episodes:'3 so far'},
-   links:[{label:'Play the whole playlist', url:'https://www.youtube.com/playlist?list=PLeRUASXiX93k', note:'All the transition videos in order'}],
-   media:[
-     {type:'youtube', src:'H1mhilI1Syw', caption:'Transitioning'},
-     {type:'youtube', src:'TuttpRLOKAE', caption:'Transitioning #2'},
-     {type:'youtube', src:'9p-AmHDo_jw', caption:'Transition #3'},
+   about:'Video diaries about my transition, in the order I made them.',
+   facts:{Where:{text:'YouTube playlist', url:'https://www.youtube.com/playlist?list=PLeRUASXiX93k'},Episodes:'3 so far'},
+   /* episodes: each one is a closed dropdown that loads its video when opened. Add new ones at the bottom. */
+   episodes:[
+     {title:'Transitioning', src:'H1mhilI1Syw'},
+     {title:'Transitioning #2', src:'TuttpRLOKAE'},
+     {title:'Transition #3', src:'9p-AmHDo_jw'},
    ],
    url:'https://www.youtube.com/playlist?list=PLeRUASXiX93k', source:''},
   {id:'movies-i-hate', cat:'videos', name:'Movies I Hate', status:'wip', glyph:'film', color:'#d8b45a',
    tagline:'Video essays about movies I can\'t stand.',
    about:'More than "this didn\'t age well." Episode one is Revenge of the Nerds: putting the nerds on trial, rewatching it as a horror movie, comparing each side\'s crimes, and defending the one thing it got right.',
-   facts:{Where:'YouTube','First up':'Revenge of the Nerds'},
-   links:[{label:'My YouTube channel', url:'https://www.youtube.com/@Zo3bubbl3?sub_confirmation=1', note:'Subscribe to catch episode one'}],
+   facts:{Where:{text:'YouTube', url:'https://www.youtube.com/@Zo3bubbl3?sub_confirmation=1'},'First up':'Revenge of the Nerds'},
    url:'', source:''},
   {id:'skyrim-kitchen', cat:'videos', name:'Skyrim Kitchen', status:'soon', glyph:'flame', color:'#ff9a5e',
    tagline:'Cooking Skyrim recipes for real, in character.',
    about:'Real-life cooking of recipes from Skyrim, filmed in character with a mix of green screen and live footage.',
-   facts:{Where:'YouTube',Stage:'Planning'},
+   facts:{Where:{text:'YouTube', url:'https://www.youtube.com/@Zo3bubbl3?sub_confirmation=1'},Stage:'Planning'},
    url:'', source:''},
   {id:'pokemon-pinball', cat:'streams', name:'Pokémon Pinball', status:'wip', glyph:'pinball', color:'#ff5d73',
    tagline:'A co-op Ruby & Sapphire pinball stream.',
    about:'Two players, two tables, one shared Pokédex. The overlay shows both games side by side and fills in the dex live whenever either of us catches something new, with chat redeems like "Who\'s That Pokémon?" built in.',
-   facts:{Where:'Twitch',Format:'Co-op, side by side'},
-   links:[{label:'Watch on Twitch', url:'https://www.twitch.tv/zo3bubbl3', note:'Follow to see when we go live'}],
+   facts:{Where:{text:'Twitch', url:'https://www.twitch.tv/zo3bubbl3'},Format:'Co-op'},
    media:[{type:'youtube', src:'ypsAPCPFaU4', caption:'Pokémon Pinball'}],
    url:'', source:'https://github.com/ZOEBUBBL/PPB-Pokemon-Pinball-Besties'},
   {id:'postcards', cat:'collections', name:'My Postcard Collection', status:'live', glyph:'stamp', color:'#5ee6d0', gallery:'postcards',
@@ -552,7 +562,7 @@ $('menus').addEventListener('click', e => { const r = e.target.closest('.row'); 
 const ytId = u => (String(u).match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/) || [])[1] || (/^[\w-]{11}$/.test(u) ? u : '');
 const drawMaterial = p => {
   const links = p.links || [], media = p.media || [];
-  if (!links.length && !media.length) return p.gallery ? '' :
+  if (!links.length && !media.length) return (p.gallery || p.episodes) ? '' :
     `<div class="mat"><h4>Links &amp; material</h4><div class="mat-empty">Nothing here yet. Clips, screenshots and links will show up here.</div></div>`;
   return `<div class="mat"><h4>Links &amp; material</h4>
     ${links.length ? `<div class="mat-links">${links.map(l => `<a href="${esc(l.url)}"${ext(l.url)}><b>${esc(l.label)} ↗</b>${l.note ? `<small>${esc(l.note)}</small>` : ''}</a>`).join('')}</div>` : ''}
@@ -580,7 +590,7 @@ const drawDetail = p => {
       <p>${esc(p.about)}</p>
       ${p.gallery ? '' : `<table class="facts"><tbody>
         <tr><td>Status</td><td><span class="st ${p.status}">${STATUS[p.status]}</span></td></tr>
-        ${facts.map(([k,v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}
+        ${facts.map(([k,v]) => `<tr><td>${esc(k)}</td><td>${v && v.url ? `<a class="flink" href="${esc(v.url)}"${ext(v.url)}>${esc(v.text)} ↗</a>` : esc(v)}</td></tr>`).join('')}
       </tbody></table>`}
       ${p.steps && p.steps.length ? `<h4>How to use it</h4><ol class="howto">${p.steps.map(s => `<li><span>${esc(s)}</span></li>`).join('')}</ol>` : ''}
       ${p.items && p.items.length ? `<h4>In the arcade</h4><div class="menu" style="margin-bottom:16px">${p.items.map((g,i) => {
@@ -589,11 +599,16 @@ const drawDetail = p => {
           <span class="st ${g.status}">${playable ? 'Play ▶' : g.status === 'live' ? 'Link soon' : STATUS[g.status]}</span>`;
         return playable ? `<button class="row" data-play="${i}">${inner}</button>` : `<div class="row" style="cursor:default">${inner}</div>`;
       }).join('')}</div>` : ''}
+      ${p.episodes && p.episodes.length ? `<h4>Episodes</h4><div class="eps">${p.episodes.map((e,i) => `<details class="ep" data-yt="${esc(ytId(e.src))}">
+        <summary><b>Episode ${i+1}</b><small>${esc(e.title||'')}</small></summary><div class="ep-v"></div></details>`).join('')}</div>` : ''}
       ${drawMaterial(p)}
       ${p.gallery ? room : p.items ? (src ? `<div class="ctas">${src}</div>` : '') : `<div class="ctas">${main}${src}</div>`}
     </div>`;
   if (p.gallery === 'postcards') drawPostcards();
   if (p.gallery === 'pins') drawPins();
+  $('detail').querySelectorAll('.ep').forEach(d => d.addEventListener('toggle', () => {
+    const v = d.querySelector('.ep-v'); if (d.open && !v.firstChild)
+      v.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${d.dataset.yt}" title="${esc(d.querySelector('small').textContent || 'Video')}" allowfullscreen></iframe>`; }));
   if (p.items) $('detail').querySelectorAll('[data-play]').forEach(b => b.addEventListener('click', () => openCab(p.items[+b.dataset.play])));
 };
 
