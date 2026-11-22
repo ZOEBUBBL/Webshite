@@ -103,6 +103,7 @@ details.findme[open]>summary::after{transform:rotate(-135deg);margin-bottom:-4px
 .row .st{flex:none}
 .st{display:inline-block;font:bold 10px Verdana,sans-serif;padding:2px 6px;border-radius:2px;white-space:nowrap}
 .st.priv{background:rgba(255,93,115,.1);color:#ff8b9b;border:1px solid rgba(255,93,115,.4)}
+.st.demo{background:rgba(216,180,90,.15);color:var(--gold);border:1px solid rgba(216,180,90,.6)}
 .st.live{background:rgba(94,230,208,.15);color:var(--acc);border:1px solid rgba(94,230,208,.5)}
 .st.wip{background:rgba(216,180,90,.12);color:var(--gold);border:1px solid rgba(216,180,90,.45)}
 .st.soon{background:rgba(139,123,255,.12);color:#b3a8ff;border:1px solid rgba(139,123,255,.45)}
@@ -407,11 +408,11 @@ const PROJECTS = [
      {name:'Word Scrambler', tagline:'Falling letters. Spell to survive.', emoji:'🔤', status:'live', url:''},
    ],
    url:'', source:''},
-  {id:'friendly-stakes', cat:'programs', name:'Friendly Stakes', status:'priv', glyph:'coin', color:'#d8b45a',
-   tagline:'Social betting for my friend group.',
-   about:'A web app where my friends and I place bets with each other on sports, events and whatever silly thing comes up. No real money, just bragging rights. It has seasonal modules, like a World Cup 2026 bracket.',
-   facts:{Built:'Next.js',Hosted:'Railway',Access:'Invite only'},
-   url:'', source:''},
+  {id:'friendly-stakes', cat:'programs', name:'Friendly Stakes', status:'demo', glyph:'coin', color:'#d8b45a',
+   tagline:'Social betting for my friend group. Try it as a guest.',
+   about:'A web app where my friends and I place bets with each other on sports, events and whatever silly thing comes up. No real money, just bragging rights. It has seasonal modules, like a World Cup 2026 bracket. The real tables are invite only, but you can sit down as a guest: you get 500 sample points to bet with, and nothing you do is saved, so go wild.',
+   facts:{'Guest demo':'500 sample points, nothing saved','Real tables':'Invite only',Built:'Next.js'},
+   cta:'Play as a guest', url:'https://friendly-stakes1-production.up.railway.app/demo', source:''},
   {id:'landline', cat:'programs', name:'The Landline', status:'live', glyph:'phone', color:'#5ee6d0',
    tagline:'Put your voice on an old telephone line.',
    about:'The phone line I use for the haunted call-in show. Talk into your mic and you come out the other end of a crackly old landline. Load voice clips onto the switchboard as callers, ring them in and pick up. With your camera on, hand signals ring and answer the phone, and you can record the whole call.',
@@ -420,8 +421,8 @@ const PROJECTS = [
   {id:'voice-studio', cat:'programs', name:'Voice Studio', status:'live', glyph:'mic', color:'#ff9a5e',
    tagline:'Record voice lines for my projects.',
    about:'A little recording booth anyone can use to lend their voice to my games and streams. Pick a line, read it, record it and send it over.',
-   facts:{Access:'Open to everyone',Needs:'A browser and a microphone'},
-   url:'', source:''},
+   facts:{Access:'Open to everyone',Needs:'A browser and a microphone','Recording for':'Dungeon Crawler Denver'},
+   cta:'Open the booth', url:'https://dungeoncrawlerdenver-production.up.railway.app/', source:''},
   {id:'scroller', cat:'programs', name:'Scroller', status:'live', glyph:'scroll', color:'#8b7bff',
    tagline:'Doomscroll your own videos instead.',
    about:'A little program that lets you scroll through your own saved videos and photos the way you would on social media, without the algorithm, ads or anyone else\'s feed. It can also turn your folders into Live TV channels. Your files never leave your computer.',
@@ -505,7 +506,7 @@ const PINS = [
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const ext = u => /^https?:/.test(u) ? ' target="_blank" rel="noopener"' : '';
-const STATUS = {live:'Out now', wip:'In progress', soon:'Coming soon', priv:'Friends only'};
+const STATUS = {demo:'Guest demo', live:'Out now', wip:'In progress', soon:'Coming soon', priv:'Friends only'};
 
 const G = {
   dice:'<rect x="8" y="8" width="32" height="32" rx="6" fill="none" stroke="C" stroke-width="2.5"/><circle cx="17" cy="17" r="3" fill="C"/><circle cx="24" cy="24" r="3" fill="C"/><circle cx="31" cy="31" r="3" fill="C"/>',
@@ -574,10 +575,10 @@ const drawMaterial = p => {
 };
 const drawDetail = p => {
   const cat = CATEGORIES.find(c => c.id === p.cat);
-  const verb = p.download ? 'Download' : ({games:'Play now', videos:'Watch now', streams:'Watch now', collections:'See the collection'}[p.cat] || 'Open it');
+  const verb = p.cta || (p.download ? 'Download' : ({games:'Play now', videos:'Watch now', streams:'Watch now', collections:'See the collection'}[p.cat] || 'Open it'));
   const href = p.download || p.url || '#';
   const off = {wip:'Not available yet', soon:'Coming soon', priv:'Invite only'}[p.status];
-  const main = p.status === 'live'
+  const main = (p.status === 'live' || p.status === 'demo')
     ? (href === '#' ? `<span class="cta" aria-disabled="true">Link coming soon</span>` : `<a class="cta" href="${esc(href)}"${ext(href)}>${verb}</a>`)
     : `<span class="cta" aria-disabled="true">${off}</span>`;
   const src = p.source ? `<a class="cta ghost" href="${esc(p.source)}"${ext(p.source)}>View source</a>` : '';
